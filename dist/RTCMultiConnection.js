@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2017-03-13 7:32:23 AM UTC
+// Last time updated: 2017-03-31 6:14:22 AM UTC
 
 // _________________________
 // RTCMultiConnection v3.4.4
@@ -4177,93 +4177,106 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             });
         }
 
-        connection.openOrJoin = function(localUserid, password) {
-            connection.checkPresence(localUserid, function(isRoomExists, roomid) {
-                if (typeof password === 'function') {
-                    password(isRoomExists, roomid);
-                    password = null;
-                }
+        connection.openOrJoin = function(roomid, password) {
+            connection.sessionid = roomid;
 
-                if (isRoomExists) {
-                    connection.sessionid = roomid;
-
-                    var localPeerSdpConstraints = false;
-                    var remotePeerSdpConstraints = false;
-                    var isOneWay = !!connection.session.oneway;
-                    var isDataOnly = isData(connection.session);
-
-                    remotePeerSdpConstraints = {
-                        OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
-                        OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo
+            connection.connectSocket(function() {
+                connection.socket.emit('open-or-join', roomid, function(isOpened, initiator) {
+                    if (connection.enableLogs) {
+                        console.info('open-or-join(', roomid, ')', isOpened === true ? 'opened' : 'joined');
                     }
 
-                    localPeerSdpConstraints = {
-                        OfferToReceiveAudio: isOneWay ? !!connection.session.audio : connection.sdpConstraints.mandatory.OfferToReceiveAudio,
-                        OfferToReceiveVideo: isOneWay ? !!connection.session.video || !!connection.session.screen : connection.sdpConstraints.mandatory.OfferToReceiveVideo
+                    if (isOpened === false) {
+                        var localPeerSdpConstraints = false;
+                        var remotePeerSdpConstraints = false;
+                        var isOneWay = !!connection.session.oneway;
+                        var isDataOnly = isData(connection.session);
+
+                        remotePeerSdpConstraints = {
+                            OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
+                            OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo
+                        }
+
+                        localPeerSdpConstraints = {
+                            OfferToReceiveAudio: isOneWay ? !!connection.session.audio : connection.sdpConstraints.mandatory.OfferToReceiveAudio,
+                            OfferToReceiveVideo: isOneWay ? !!connection.session.video || !!connection.session.screen : connection.sdpConstraints.mandatory.OfferToReceiveVideo
+                        }
+
+                        var connectionDescription = {
+                            remoteUserId: initiator,
+                            message: {
+                                newParticipationRequest: true,
+                                isOneWay: isOneWay,
+                                isDataOnly: isDataOnly,
+                                localPeerSdpConstraints: localPeerSdpConstraints,
+                                remotePeerSdpConstraints: remotePeerSdpConstraints
+                            },
+                            sender: connection.userid,
+                            password: typeof password === 'function' ? false : password
+                        };
+
+                        beforeJoin(connectionDescription.message, function() {
+                            mPeer.onNegotiationNeeded(connectionDescription);
+
+                            if (typeof password === 'function') {
+                                password(isOpened, roomid);
+                            }
+                        });
+                        return;
                     }
 
-                    var connectionDescription = {
-                        remoteUserId: connection.sessionid,
-                        message: {
-                            newParticipationRequest: true,
-                            isOneWay: isOneWay,
-                            isDataOnly: isDataOnly,
-                            localPeerSdpConstraints: localPeerSdpConstraints,
-                            remotePeerSdpConstraints: remotePeerSdpConstraints
-                        },
-                        sender: connection.userid,
-                        password: password || false
-                    };
+                    if (typeof password !== 'function') {
+                        connection.socket.emit('set-password', password);
+                    }
 
-                    beforeJoin(connectionDescription.message, function() {
-                        mPeer.onNegotiationNeeded(connectionDescription);
+                    connection.isInitiator = true;
+
+                    if (isData(connection.session)) {
+                        return;
+                    }
+
+                    connection.captureUserMedia(function() {
+                        if (typeof password === 'function') {
+                            password(isOpened, roomid);
+                        }
                     });
-                    return;
-                }
-
-                var oldUserId = connection.userid;
-                connection.userid = connection.sessionid = localUserid || connection.sessionid;
-                connection.userid += '';
-
-                connection.socket.emit('changed-uuid', connection.userid);
-
-                if (password) {
-                    connection.socket.emit('set-password', password);
-                }
-
-                connection.isInitiator = true;
-
-                if (isData(connection.session)) {
-                    return;
-                }
-
-                connection.captureUserMedia();
+                });
             });
         };
 
-        connection.open = function(localUserid, isPublicModerator) {
-            var oldUserId = connection.userid;
-            connection.userid = connection.sessionid = localUserid || connection.sessionid;
-            connection.userid += '';
-
+        connection.open = function(roomid, callback) {
+            connection.sessionid = roomid || connection.sessionid;
             connection.isInitiator = true;
 
-            connectSocket(function() {
-                connection.socket.emit('changed-uuid', connection.userid);
-
-                if (isPublicModerator == true) {
-                    connection.becomePublicModerator();
+            connection.checkPresence(roomid, function(isRoomExist) {
+                if (isRoomExist === true) {
+                    if (typeof callback === 'function') {
+                        callback(false);
+                    } else if (connection.enableLogs) {
+                        console.error('Room', roomid, 'already opened. Please join instead.');
+                    }
+                    return;
                 }
+
+                connection.socket.emit('open-or-join', roomid, function(isOpened, initiator) {
+                    if (callback == true) {
+                        // connection.becomePublicModerator();
+                    }
+
+                    if (isData(connection.session)) {
+                        if (typeof callback === 'function') {
+                            callback(true);
+                        }
+                        return;
+                    }
+
+                    connection.captureUserMedia(function() {
+                        if (typeof callback === 'function') {
+                            callback(true);
+                        }
+                    });
+                });
             });
-
-            if (isData(connection.session)) {
-                if (typeof isPublicModerator === 'function') {
-                    isPublicModerator();
-                }
-                return;
-            }
-
-            connection.captureUserMedia(typeof isPublicModerator === 'function' ? isPublicModerator : null);
         };
 
         connection.becomePublicModerator = function() {
@@ -4343,81 +4356,63 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             }
         };
 
-        connection.join = connection.connect = function(remoteUserId, options) {
-            connection.sessionid = (remoteUserId ? remoteUserId.sessionid || remoteUserId.remoteUserId || remoteUserId : false) || connection.sessionid;
-            connection.sessionid += '';
+        connection.join = connection.connect = function(roomid, callback) {
+            connection.sessionid = roomid || connection.sessionid;
+            connection.isInitiator = true;
 
-            var localPeerSdpConstraints = false;
-            var remotePeerSdpConstraints = false;
-            var isOneWay = false;
-            var isDataOnly = false;
-
-            if ((remoteUserId && remoteUserId.session) || !remoteUserId || typeof remoteUserId === 'string') {
-                var session = remoteUserId ? remoteUserId.session || connection.session : connection.session;
-
-                isOneWay = !!session.oneway;
-                isDataOnly = isData(session);
-
-                remotePeerSdpConstraints = {
-                    OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
-                    OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo
-                };
-
-                localPeerSdpConstraints = {
-                    OfferToReceiveAudio: isOneWay ? !!connection.session.audio : connection.sdpConstraints.mandatory.OfferToReceiveAudio,
-                    OfferToReceiveVideo: isOneWay ? !!connection.session.video || !!connection.session.screen : connection.sdpConstraints.mandatory.OfferToReceiveVideo
-                };
-            }
-
-            options = options || {};
-
-            var cb = function() {};
-            if (typeof options === 'function') {
-                cb = options;
-                options = {};
-            }
-
-            if (typeof options.localPeerSdpConstraints !== 'undefined') {
-                localPeerSdpConstraints = options.localPeerSdpConstraints;
-            }
-
-            if (typeof options.remotePeerSdpConstraints !== 'undefined') {
-                remotePeerSdpConstraints = options.remotePeerSdpConstraints;
-            }
-
-            if (typeof options.isOneWay !== 'undefined') {
-                isOneWay = options.isOneWay;
-            }
-
-            if (typeof options.isDataOnly !== 'undefined') {
-                isDataOnly = options.isDataOnly;
-            }
-
-            var connectionDescription = {
-                remoteUserId: connection.sessionid,
-                message: {
-                    newParticipationRequest: true,
-                    isOneWay: isOneWay,
-                    isDataOnly: isDataOnly,
-                    localPeerSdpConstraints: localPeerSdpConstraints,
-                    remotePeerSdpConstraints: remotePeerSdpConstraints
-                },
-                sender: connection.userid,
-                password: false
-            };
-
-            beforeJoin(connectionDescription.message, function() {
-                connectSocket(function() {
-                    if (!!connection.peers[connection.sessionid]) {
-                        // on socket disconnect & reconnect
-                        return;
+            connection.checkPresence(roomid, function(isRoomExist) {
+                if (isRoomExist === false) {
+                    if (typeof callback === 'function') {
+                        callback(false);
+                    } else if (connection.enableLogs) {
+                        console.error('Room', roomid, 'does not exist. Please open instead.');
                     }
+                    return;
+                }
 
-                    mPeer.onNegotiationNeeded(connectionDescription);
-                    cb();
+                connection.socket.emit('open-or-join', roomid, function(isOpened, initiator) {
+                    var localPeerSdpConstraints = false;
+                    var remotePeerSdpConstraints = false;
+                    var isOneWay = false;
+                    var isDataOnly = false;
+
+                    var session = roomid.session || connection.session;
+
+                    isOneWay = !!session.oneway;
+                    isDataOnly = isData(session);
+
+                    remotePeerSdpConstraints = {
+                        OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
+                        OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo
+                    };
+
+                    localPeerSdpConstraints = {
+                        OfferToReceiveAudio: isOneWay ? !!connection.session.audio : connection.sdpConstraints.mandatory.OfferToReceiveAudio,
+                        OfferToReceiveVideo: isOneWay ? !!connection.session.video || !!connection.session.screen : connection.sdpConstraints.mandatory.OfferToReceiveVideo
+                    };
+
+                    var connectionDescription = {
+                        remoteUserId: initiator,
+                        message: {
+                            newParticipationRequest: true,
+                            isOneWay: isOneWay,
+                            isDataOnly: isDataOnly,
+                            localPeerSdpConstraints: localPeerSdpConstraints,
+                            remotePeerSdpConstraints: remotePeerSdpConstraints
+                        },
+                        sender: connection.userid,
+                        password: false
+                    };
+
+                    beforeJoin(connectionDescription.message, function() {
+                        mPeer.onNegotiationNeeded(connectionDescription);
+
+                        if (typeof callback === 'function') {
+                            callback(false, connectionDescription);
+                        }
+                    });
                 });
             });
-            return connectionDescription;
         };
 
         function beforeJoin(userPreferences, callback) {

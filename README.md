@@ -1,3 +1,17 @@
+# Please test only this demo on localhost
+
+* http://localhost:9001/demos/Video-Conferencing.html
+
+# This branch is work-in-progress. Not published yet.
+
+> Now rooms are separated. Now if you join a room, you are actually joining a room.
+>
+> Now initiator's "userid" does NOT change.
+>
+> Now "roomid" and initiator's "userid" are NOT same.
+
+---
+
 <a href="https://github.com/muaz-khan/RTCMultiConnection"><img src="https://i.imgur.com/MFfRBSM.png" /></a>
 
 ## RTCMultiConnection - WebRTC JavaScript Library
