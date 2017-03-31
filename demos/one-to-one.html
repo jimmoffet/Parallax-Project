@@ -10,9 +10,9 @@
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <title>Audio+Video+Screen Sharing using RTCMultiConnection</title>
+    <title>One-to-One Video Chat using RTCMultiConnection</title>
 
-    <meta name="description" content="Audio+Video+Screen Sharing using RTCMultiConnection" />
+    <meta name="description" content="One-to-One Video Chat using RTCMultiConnection. Only one user can join a room." />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
@@ -58,16 +58,13 @@
 
     <!-- socket.io for signaling -->
     <script src="/socket.io/socket.io.js"></script>
-        
-    <!-- capture screen from any HTTPs domain! -->
-    <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
 </head>
 
 <body>
     <article>
 
         <header style="text-align: center;">
-            <h1>Audio+Video+Screen Sharing using RTCMultiConnection</h1>
+            <h1>One-to-One Video Chat using RTCMultiConnection</h1>
             <p>
                 <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
@@ -81,16 +78,16 @@
 
         <div class="github-stargazers"></div>
 
+        <blockquote>
+            Only one user can join a room.
+        </blockquote>
+
         <section class="experiment">
             <div class="make-center">
                 <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
-                
-                <hr>
-                    <button id="share-screen" disabled>Share Screen</button>
-                <hr>
 
                 <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
             </div>
@@ -98,22 +95,10 @@
             <div id="videos-container"></div>
         </section>
 
-        <blockquote>
-            You can share audio+video as well as screen.
-        </blockquote>
-
         <script>
             // ......................................................
             // .......................UI Code........................
             // ......................................................
-            
-            document.getElementById('share-screen').onclick = function() {
-                this.disabled = true;
-                connection.addStream({
-                    screen: true,
-                    oneway: true
-                });
-            };
 
             document.getElementById('open-room').onclick = function() {
                 disableInputButtons();
@@ -141,19 +126,6 @@
             // ......................................................
 
             var connection = new RTCMultiConnection();
-            
-            // Using getScreenId.js to capture screen from any domain
-            // You do NOT need to deploy Chrome Extension YOUR-Self!!
-            connection.getScreenConstraints = function(callback) {
-                getScreenConstraints(function(error, screen_constraints) {
-                    if (!error) {
-                        screen_constraints = connection.modifyScreenConstraints(screen_constraints);
-                        callback(error, screen_constraints);
-                        return;
-                    }
-                    throw error;
-                });
-            };
 
             // by default, socket.io server is assumed to be deployed on your own URL
             connection.socketURL = '/';
@@ -161,7 +133,7 @@
             // comment-out below line if you do not have your own socket.io server
             // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-            connection.socketMessageEvent = 'audio-video-screen-demo';
+            connection.socketMessageEvent = 'video-conference-demo';
 
             connection.session = {
                 audio: true,
@@ -175,17 +147,7 @@
 
             connection.videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
-                if(document.getElementById(event.streamid)) {
-                    var existing = document.getElementById(event.streamid);
-                    existing.parentNode.removeChild(existing);
-                }
-                
                 var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
-                
-                if(event.stream.isScreen === true) {
-                    width = connection.videosContainer.clientWidth - 20;
-                }
-                
                 var mediaElement = getMediaElement(event.mediaElement, {
                     title: event.userid,
                     buttons: ['full-screen'],
@@ -214,7 +176,6 @@
                 document.getElementById('open-room').disabled = true;
                 document.getElementById('join-room').disabled = true;
                 document.getElementById('room-id').disabled = true;
-                document.getElementById('share-screen').disabled = false;
             }
 
             // ......................................................
@@ -289,6 +250,22 @@
 
                 disableInputButtons();
             }
+
+            // to make it one-to-one
+            connection.maxParticipantsAllowed = 1;
+            connection.onRoomFull = function(roomid) {
+              connection.closeSocket();
+              connection.attachStreams.forEach(function(stream) {
+                stream.stop();
+              });
+
+              document.getElementById('open-or-join-room').disabled = false;
+              document.getElementById('open-room').disabled = false;
+              document.getElementById('join-room').disabled = false;
+              document.getElementById('room-id').disabled = false;
+
+              alert('Room is full.');
+            };
         </script>
 
         <section class="experiment own-widgets latest-commits">

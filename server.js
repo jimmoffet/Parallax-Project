@@ -45,13 +45,16 @@ try {
 
 var server = require(isUseHTTPs ? 'https' : 'http');
 var url = require('url');
+var util = require('util');
 
 function serverHandler(request, response) {
     try {
         var uri = url.parse(request.url).pathname,
             filename = path.join(process.cwd(), uri);
 
-        if (filename && filename.search(/server.js|Scalable-Broadcast.js|Signaling-Server.js/g) !== -1) {
+        filename = (filename || '').toString().toLowerCase();
+
+        if (filename && filename.search(/server.js|scalable-broadcast.js|signaling-server.js/g) !== -1) {
             response.writeHead(404, {
                 'Content-Type': 'text/plain'
             });
@@ -87,7 +90,7 @@ function serverHandler(request, response) {
                 'Content-Type': 'text/html'
             });
 
-            if (filename.indexOf(resolveURL('/demos/MultiRTC/')) !== -1) {
+            if (filename.indexOf(resolveURL('/demos/multirtc/')) !== -1) {
                 filename = filename.replace(resolveURL('/demos/MultiRTC/'), '');
                 filename += resolveURL('/demos/MultiRTC/index.html');
             } else if (filename.indexOf(resolveURL('/demos/')) !== -1) {
@@ -120,41 +123,11 @@ function serverHandler(request, response) {
             }
 
             try {
-                var demos = (fs.readdirSync('demos') || []);
-
-                if (demos.length) {
-                    var h2 = '<h2 style="text-align:center;display:block;"><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/v/rtcmulticonnection-v3.svg"></a><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg"></a><a href="https://travis-ci.org/muaz-khan/RTCMultiConnection"><img src="https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master"></a></h2>';
-                    var otherDemos = '<section class="experiment" id="demos"><details><summary style="text-align:center;">Check ' + (demos.length - 1) + ' other RTCMultiConnection-v3 demos</summary>' + h2 + '<ol>';
-                    demos.forEach(function(f) {
-                        if (f && f !== 'index.html' && f.indexOf('.html') !== -1) {
-                            otherDemos += '<li><a href="/demos/' + f + '">' + f + '</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/' + f + '">Source</a>)</li>';
-                        }
-                    });
-                    otherDemos += '<ol></details></section><section class="experiment own-widgets latest-commits">';
-
-                    file = file.replace('<section class="experiment own-widgets latest-commits">', otherDemos);
-                }
-            } catch (e) {}
-
-            try {
-                var docs = (fs.readdirSync('docs') || []);
-
-                if (docs.length) {
-                    var html = '<section class="experiment" id="docs">';
-                    html += '<details><summary style="text-align:center;">RTCMultiConnection Docs</summary>';
-                    html += '<h2 style="text-align:center;display:block;"><a href="http://www.rtcmulticonnection.org/docs/">http://www.rtcmulticonnection.org/docs/</a></h2>';
-                    html += '<ol>';
-
-                    docs.forEach(function(f) {
-                        if (f.indexOf('DS_Store') == -1) {
-                            html += '<li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/' + f + '">' + f + '</a></li>';
-                        }
-                    });
-
-                    html += '</ol></details></section><section class="experiment own-widgets latest-commits">';
-
-                    file = file.replace('<section class="experiment own-widgets latest-commits">', html);
-                }
+                var stats = fs.statSync(filename);
+                var mtime = new Date(util.inspect(stats.mtime));
+                mtime = formatDate(mtime);
+                var html = '</h1><small style="color: red;text-align: center; display: block;">Last Updated On: <time><?php echo date("F d, Y", filemtime("../RecordRTC.js"));?>' + mtime + '</time></small>';
+                file = file.replace('</h1>', html);
             } catch (e) {}
 
             response.writeHead(200, {
@@ -286,6 +259,21 @@ function runServer() {
             });
         } catch (e) {}
     });
+}
+
+function formatDate(date) {
+    var monthNames = [
+        "January", "February", "March",
+        "April", "May", "June", "July",
+        "August", "September", "October",
+        "November", "December"
+    ];
+
+    var day = date.getDate();
+    var monthIndex = date.getMonth();
+    var year = date.getFullYear();
+
+    return day + ' ' + monthNames[monthIndex] + ' ' + year;
 }
 
 if (autoRebootServerOnFailure) {

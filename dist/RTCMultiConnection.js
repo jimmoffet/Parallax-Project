@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2017-03-31 6:14:22 AM UTC
+// Last time updated: 2017-03-31 1:35:35 PM UTC
 
 // _________________________
 // RTCMultiConnection v3.4.4
@@ -4408,7 +4408,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                         mPeer.onNegotiationNeeded(connectionDescription);
 
                         if (typeof callback === 'function') {
-                            callback(false, connectionDescription);
+                            callback(true, connectionDescription);
                         }
                     });
                 });
@@ -4817,6 +4817,13 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         };
 
         connection.onEntireSessionClosed = function(event) {
+            connection.getAllParticipants().forEach(function(p) {
+                connection.disconnectWith(p);
+            });
+            connection.attachStreams.forEach(function(stream) {
+                stream.stop();
+            });
+            connection.closeSocket();
             if (!connection.enableLogs) return;
             console.info('Entire session is closed: ', event.sessionid, event.extra);
         };

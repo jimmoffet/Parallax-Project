@@ -50,6 +50,14 @@
             }
         }
     </style>
+
+    <script src="/dist/RTCMultiConnection.min.js"></script>
+
+    <!-- custom layout for HTML5 audio/video elements -->
+    <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
+
+    <!-- socket.io for signaling -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -86,14 +94,6 @@
 
             <div id="videos-container"></div>
         </section>
-
-        <script src="/dist/RTCMultiConnection.min.js"></script>
-
-        <!-- custom layout for HTML5 audio/video elements -->
-        <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
-
-        <!-- socket.io for signaling -->
-        <script src="/socket.io/socket.io.js"></script>
 
         <script>
             // ......................................................

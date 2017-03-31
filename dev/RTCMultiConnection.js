@@ -392,7 +392,7 @@
                     mPeer.onNegotiationNeeded(connectionDescription);
 
                     if (typeof callback === 'function') {
-                        callback(false, connectionDescription);
+                        callback(true, connectionDescription);
                     }
                 });
             });
@@ -801,6 +801,13 @@
     };
 
     connection.onEntireSessionClosed = function(event) {
+        connection.getAllParticipants().forEach(function(p) {
+            connection.disconnectWith(p);
+        });
+        connection.attachStreams.forEach(function(stream) {
+            stream.stop();
+        });
+        connection.closeSocket();
         if (!connection.enableLogs) return;
         console.info('Entire session is closed: ', event.sessionid, event.extra);
     };
