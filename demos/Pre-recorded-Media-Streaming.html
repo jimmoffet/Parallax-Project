@@ -50,6 +50,14 @@
             }
         }
     </style>
+
+    <script src="/dist/RTCMultiConnection.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
+
+    <!-- custom layout for HTML5 audio/video elements -->
+    <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 </head>
 
 <body>
@@ -91,14 +99,6 @@
 
             <div id="videos-container"></div>
         </section>
-
-        <script src="/dist/RTCMultiConnection.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-
-        <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
-
-        <!-- custom layout for HTML5 audio/video elements -->
-        <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 
         <script>
             var connection = new RTCMultiConnection(); // to get window.DetectRTC object

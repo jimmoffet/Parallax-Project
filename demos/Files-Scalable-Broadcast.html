@@ -70,6 +70,11 @@
             background: white;
         }
     </style>
+
+    <script src="/dist/RTCMultiConnection.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
 </head>
 
 <body>
@@ -110,11 +115,6 @@
             <br><br>
             Share camera with unlimited users using p2p methods! <a href="/demos/Video-Scalable-Broadcast.html">Video Scalable Broadcast</a> or <a href="/demos/Scalable-Broadcast.html">all-in-one scalable broadcast</a>.
         </blockquote>
-
-        <script src="/dist/RTCMultiConnection.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-
-        <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
 
         <script>
             var connection = new RTCMultiConnection();
