@@ -3,16 +3,14 @@
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
 module.exports = exports = function(app, socketCallback) {
-    // stores all sockets, user-ids, extra-data and connected sockets
-    // you can check presence as following:
-    // var isRoomExist = listOfUsers['room-id'] != null;
+    // all users are kept in this array
     var listOfUsers = {};
+
+    // all rooms are kept in this array
     var listOfRooms = {};
 
-    var shiftedModerationControls = {};
-
-    // for scalable-broadcast demos
-    var ScalableBroadcast;
+    // i.e. ask first participant to become next room-controller
+    var shiftRoomControl = {};
 
     var io = require('socket.io');
 
@@ -125,19 +123,18 @@ module.exports = exports = function(app, socketCallback) {
         var autoCloseEntireSession = params.autoCloseEntireSession;
 
         if (params.enableScalableBroadcast) {
-            if (!ScalableBroadcast) {
-                ScalableBroadcast = require('./Scalable-Broadcast.js');
-            }
+            // for scalable-broadcast demos
+            var ScalableBroadcast = require('./Scalable-Broadcast.js');
             ScalableBroadcast(socket, params.maxRelayLimitPerUser);
         }
 
-        // temporarily disabled
         if (!!listOfUsers[params.userid]) {
             params.dontUpdateUserId = true;
 
             var useridAlreadyTaken = params.userid;
             params.userid = (Math.random() * 1000).toString().replace('.', '');
             socket.emit('userid-already-taken', useridAlreadyTaken, params.userid);
+            // maybe "return" here to ignore below codes?
         }
 
         socket.userid = params.userid;
@@ -268,7 +265,7 @@ module.exports = exports = function(app, socketCallback) {
                 });
             }
 
-            delete shiftedModerationControls[socket.userid];
+            delete shiftRoomControl[socket.userid];
             callback();
         });
 
@@ -358,7 +355,7 @@ module.exports = exports = function(app, socketCallback) {
                     onMessageCallback(message);
                     return;
                 }
-                shiftedModerationControls[message.sender] = message;
+                shiftRoomControl[message.sender] = message;
                 return;
             }
 
@@ -383,10 +380,10 @@ module.exports = exports = function(app, socketCallback) {
                 delete socket.namespace.sockets[this.id];
             }
 
-            var message = shiftedModerationControls[socket.userid];
+            var message = shiftRoomControl[socket.userid];
 
             if (message) {
-                delete shiftedModerationControls[message.userid];
+                delete shiftRoomControl[message.userid];
                 onMessageCallback(message);
             }
 
@@ -429,15 +426,3 @@ module.exports = exports = function(app, socketCallback) {
         }
     }
 };
-
-var enableLogs = false;
-
-try {
-    var _enableLogs = require('./config.json').enableLogs;
-
-    if (_enableLogs) {
-        enableLogs = true;
-    }
-} catch (e) {
-    enableLogs = false;
-}
