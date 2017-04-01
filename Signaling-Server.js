@@ -9,9 +9,6 @@ module.exports = exports = function(app, socketCallback) {
     // all rooms are kept in this array
     var listOfRooms = {};
 
-    // i.e. ask first participant to become next room-controller
-    var shiftRoomControl = {};
-
     var io = require('socket.io');
 
     try {
@@ -120,7 +117,6 @@ module.exports = exports = function(app, socketCallback) {
         var socketMessageEvent = params.msgEvent || 'RTCMultiConnection-Message';
 
         var sessionid = params.sessionid;
-        var autoCloseEntireSession = params.autoCloseEntireSession;
 
         if (params.enableScalableBroadcast) {
             // for scalable-broadcast demos
@@ -140,16 +136,8 @@ module.exports = exports = function(app, socketCallback) {
         socket.userid = params.userid;
         appendUser(socket);
 
-        if (autoCloseEntireSession == 'false' && sessionid == socket.userid) {
-            socket.shiftModerationControlBeforeLeaving = true;
-        }
-
         socket.on('open-or-join', function(roomid, callback) {
             openOrJoin(socket, roomid, callback || function() {});
-        });
-
-        socket.on('shift-moderator-control-on-disconnect', function() {
-            socket.shiftModerationControlBeforeLeaving = true;
         });
 
         socket.on('extra-data-updated', function(extra) {
@@ -177,11 +165,6 @@ module.exports = exports = function(app, socketCallback) {
             callback(listOfUsers[remoteUserId].extra);
         });
 
-        socket.on('become-a-public-moderator', function() {
-            if (!listOfUsers[socket.userid]) return;
-            listOfUsers[socket.userid].isPublic = true;
-        });
-
         var dontDuplicateListeners = {};
         socket.on('set-custom-socket-event-listener', function(customEvent) {
             if (dontDuplicateListeners[customEvent]) return;
@@ -190,27 +173,6 @@ module.exports = exports = function(app, socketCallback) {
             socket.on(customEvent, function(message) {
                 socket.broadcast.emit(customEvent, message);
             });
-        });
-
-        socket.on('dont-make-me-moderator', function() {
-            if (!listOfUsers[socket.userid]) return;
-            listOfUsers[socket.userid].isPublic = false;
-        });
-
-        socket.on('get-public-moderators', function(userIdStartsWith, callback) {
-            userIdStartsWith = userIdStartsWith || '';
-            var allPublicModerators = [];
-            for (var moderatorId in listOfUsers) {
-                if (listOfUsers[moderatorId].isPublic && moderatorId.indexOf(userIdStartsWith) === 0 && moderatorId !== socket.userid) {
-                    var moderator = listOfUsers[moderatorId];
-                    allPublicModerators.push({
-                        userid: moderatorId,
-                        extra: moderator.extra
-                    });
-                }
-            }
-
-            callback(allPublicModerators);
         });
 
         socket.on('changed-uuid', function(newUserId, callback) {
@@ -264,8 +226,6 @@ module.exports = exports = function(app, socketCallback) {
                     s.emit('closed-entire-session', socket.userid, listOfUsers[socket.userid].extra);
                 });
             }
-
-            delete shiftRoomControl[socket.userid];
             callback();
         });
 
@@ -350,15 +310,6 @@ module.exports = exports = function(app, socketCallback) {
                 }
             }
 
-            if (message.message.shiftedModerationControl) {
-                if (!message.message.firedOnLeave) {
-                    onMessageCallback(message);
-                    return;
-                }
-                shiftRoomControl[message.sender] = message;
-                return;
-            }
-
             // for v3 backward compatibility; >v3.3.3 no more uses below block
             if (message.remoteUserId == 'system') {
                 if (message.message.detectPresence) {
@@ -380,31 +331,10 @@ module.exports = exports = function(app, socketCallback) {
                 delete socket.namespace.sockets[this.id];
             }
 
-            var message = shiftRoomControl[socket.userid];
-
-            if (message) {
-                delete shiftRoomControl[message.userid];
-                onMessageCallback(message);
-            }
-
-            var firstUserSocket = null;
-
-            getMyRoomSockets(socket).forEach(function(s) {
-                if (!firstUserSocket) {
-                    firstUserSocket = s;
-                }
-
-                s.emit('user-disconnected', socket.userid);
-            });
-
-            if (socket.shiftModerationControlBeforeLeaving && firstUserSocket) {
-                firstUserSocket.emit('become-next-modrator', sessionid);
-            }
-
             var user = listOfUsers[socket.userid];
             if (user && user.roomid && listOfRooms[user.roomid]) {
                 var room = listOfRooms[user.roomid];
-                if (room.initiator === socket.userid && !socket.shiftModerationControlBeforeLeaving) {
+                if (room.initiator === socket.userid) {
                     getMyRoomSockets(socket).forEach(function(s) {
                         s.emit('closed-entire-session', socket.userid, user.extra || {});
                     });

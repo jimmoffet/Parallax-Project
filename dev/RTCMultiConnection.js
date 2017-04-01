@@ -243,8 +243,8 @@
             }
 
             connection.socket.emit('open-or-join', roomid, function(isOpened, initiator) {
-                if (callback == true) {
-                    // connection.becomePublicModerator();
+                if (connection.enableLogs) {
+                    console.info('open(', roomid, ')', isOpened === true ? 'opened' : 'already-opened');
                 }
 
                 if (isData(connection.session)) {
@@ -261,15 +261,6 @@
                 });
             });
         });
-    };
-
-    connection.becomePublicModerator = function() {
-        if (!connection.isInitiator) return;
-        connection.socket.emit('become-a-public-moderator');
-    };
-
-    connection.dontMakeMeModerator = function() {
-        connection.socket.emit('dont-make-me-moderator');
     };
 
     connection.deletePeer = function(remoteUserId) {
@@ -355,6 +346,10 @@
             }
 
             connection.socket.emit('open-or-join', roomid, function(isOpened, initiator) {
+                if (connection.enableLogs) {
+                    console.info('join(', roomid, ')', isOpened === false ? 'joined' : 'opened-instead');
+                }
+
                 var localPeerSdpConstraints = false;
                 var remotePeerSdpConstraints = false;
                 var isOneWay = false;
@@ -500,13 +495,9 @@
         }
     };
 
-    function beforeUnload(shiftModerationControlOnLeave, dontCloseSocket) {
+    function beforeUnload(dontCloseSocket) {
         if (!connection.closeBeforeUnload) {
             return;
-        }
-
-        if (connection.isInitiator === true) {
-            connection.dontMakeMeModerator();
         }
 
         connection.peers.getAllParticipants().forEach(function(participant) {
@@ -776,7 +767,7 @@
     };
 
     connection.close = connection.disconnect = connection.leave = function() {
-        beforeUnload(false, true);
+        beforeUnload(true);
     };
 
     connection.closeEntireSession = function(callback) {
@@ -1189,8 +1180,6 @@
         }
     };
 
-    connection.autoCloseEntireSession = false;
-
     function keepNextBroadcasterOnServer() {
         if (!connection.isInitiator) return;
 
@@ -1205,9 +1194,6 @@
                 otherBroadcasters.push(broadcaster);
             }
         });
-
-        if (connection.autoCloseEntireSession) return;
-        connection.shiftModerationControl(firstBroadcaster, otherBroadcasters, true);
     };
 
     connection.filesContainer = connection.videosContainer = document.body || document.documentElement;
@@ -1237,33 +1223,6 @@
         mPeer.createNewPeer(participantId, userPreferences);
     };
 
-    connection.onShiftedModerationControl = function(sender, existingBroadcasters) {
-        connection.acceptModerationControl(sender, existingBroadcasters);
-    };
-
-    connection.acceptModerationControl = function(sender, existingBroadcasters) {
-        connection.isInitiator = true; // NEW initiator!
-
-        connection.broadcasters = existingBroadcasters;
-        connection.peers.getAllParticipants().forEach(function(participant) {
-            mPeer.onNegotiationNeeded({
-                changedUUID: sender,
-                oldUUID: connection.userid,
-                newUUID: sender
-            }, participant);
-        });
-        connection.userid = sender;
-        connection.changeUserId(connection.userid);
-    };
-
-    connection.shiftModerationControl = function(remoteUserId, existingBroadcasters, firedOnLeave) {
-        mPeer.onNegotiationNeeded({
-            shiftedModerationControl: true,
-            broadcasters: existingBroadcasters,
-            firedOnLeave: !!firedOnLeave
-        }, remoteUserId);
-    };
-
     if (typeof StreamsHandler !== 'undefined') {
         connection.StreamsHandler = StreamsHandler;
     }
@@ -1274,20 +1233,6 @@
         var selector = new FileSelector();
         selector.accept = '*.*';
         selector.selectSingleFile(callback);
-    };
-
-    connection.getPublicModerators = function(userIdStartsWith, callback) {
-        if (typeof userIdStartsWith === 'function') {
-            callback = userIdStartsWith;
-        }
-
-        connectSocket(function() {
-            connection.socket.emit(
-                'get-public-moderators',
-                typeof userIdStartsWith === 'string' ? userIdStartsWith : '',
-                callback
-            );
-        });
     };
 
     connection.onmute = function(e) {

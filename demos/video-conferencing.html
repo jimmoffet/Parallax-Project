@@ -62,10 +62,11 @@
 // .......................UI Code........................
 // ......................................................
 document.getElementById('open-room').onclick = function() {
-    disableInputButtons();
+    enableInputButtons(false);
+
     connection.open(document.getElementById('room-id').value, function(isOpened) {
         if (isOpened === false) {
-            disableInputButtons(true);
+            enableInputButtons(true);
             alert('Room already exist. Please join instead.');
             return;
         }
@@ -74,17 +75,19 @@ document.getElementById('open-room').onclick = function() {
 };
 
 document.getElementById('join-room').onclick = function() {
-    disableInputButtons();
+    enableInputButtons(false);
+
     connection.join(document.getElementById('room-id').value, function(isJoined) {
         if (isJoined === false) {
-            disableInputButtons(true);
+            enableInputButtons(true);
             alert('Room does not exist. Please open instead.');
         }
     });
 };
 
 document.getElementById('open-or-join-room').onclick = function() {
-    disableInputButtons();
+    enableInputButtons(false);
+    
     connection.openOrJoin(document.getElementById('room-id').value, function(isOpened, roomid) {
         if (isOpened === true) {
             showRoomURL(roomid);
@@ -144,7 +147,13 @@ connection.onstreamended = function(event) {
     }
 };
 
-function disableInputButtons(enable) {
+connection.__onEntireSessionClosed = connection.onEntireSessionClosed;
+connection.onEntireSessionClosed = function(event) {
+  enableInputButtons(true);
+  connection.__onEntireSessionClosed(event);
+};
+
+function enableInputButtons(enable) {
     document.getElementById('open-or-join-room').disabled = !enable;
     document.getElementById('open-room').disabled = !enable;
     document.getElementById('join-room').disabled = !enable;
@@ -211,12 +220,12 @@ if (roomid && roomid.length) {
 
     connection.join(roomid, function(isJoined) {
         if (isJoined === false) {
-            disableInputButtons(true);
+            enableInputButtons(true);
             alert('Room does not exist. Please open instead.');
             return;
         }
 
-        disableInputButtons();
+        enableInputButtons(false);
     });
 }
 </script>

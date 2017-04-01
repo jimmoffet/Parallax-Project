@@ -5,8 +5,6 @@ function SocketConnection(connection, connectCallback) {
     parameters += '&sessionid=' + connection.sessionid;
     parameters += '&msgEvent=' + connection.socketMessageEvent;
     parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
-    parameters += '&autoCloseEntireSession=' + !!connection.autoCloseEntireSession;
-
     parameters += '&maxParticipantsAllowed=' + connection.maxParticipantsAllowed;
 
     if (connection.enableScalableBroadcast) {
@@ -209,11 +207,6 @@ function SocketConnection(connection, connectCallback) {
             return;
         }
 
-        if (message.message.shiftedModerationControl) {
-            connection.onShiftedModerationControl(message.sender, message.message.broadcasters);
-            return;
-        }
-
         if (message.message.changedUUID) {
             if (connection.peers[message.message.oldUUID]) {
                 connection.peers[message.message.newUUID] = connection.peers[message.message.oldUUID];
@@ -224,10 +217,7 @@ function SocketConnection(connection, connectCallback) {
         if (message.message.userLeft) {
             mPeer.onUserLeft(message.sender);
 
-            if (!!message.message.autoCloseEntireSession) {
-                connection.leave();
-            }
-
+            // connection.leave();
             return;
         }
 
@@ -351,13 +341,5 @@ function SocketConnection(connection, connectCallback) {
 
     connection.socket.on('room-full', function(roomid) {
         connection.onRoomFull(roomid);
-    });
-
-    connection.socket.on('become-next-modrator', function(sessionid) {
-        if (sessionid != connection.sessionid) return;
-        setTimeout(function() {
-            connection.open(sessionid);
-            connection.socket.emit('shift-moderator-control-on-disconnect');
-        }, 1000);
     });
 }

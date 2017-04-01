@@ -85,7 +85,6 @@ RTCMultiConnection-v2 (old) videos: https://vimeo.com/muazkh
 | PubNub Demo | [Demo](https://rtcmulticonnection.herokuapp.com/demos/pubnub-demo.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/pubnub-demo.html) |
 | Socket.io Custom-Messaging | [Demo](https://rtcmulticonnection.herokuapp.com/demos/custom-socket-event.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/custom-socket-event.html) |
 | Check Rooms Presence | [Demo](https://rtcmulticonnection.herokuapp.com/demos/checkpresence.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/checkpresence.html) |
-| getPublicModerators | [Demo](https://rtcmulticonnection.herokuapp.com/demos/getpublicmoderators.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getpublicmoderators.html) |
 | Change Cameras/Microphone | [Demo](https://rtcmulticonnection.herokuapp.com/demos/switch-cameras.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/switch-cameras.html) |
 | MultiRTC: Skype-like app | [Demo](https://rtcmulticonnection.herokuapp.com/demos/MultiRTC/) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MultiRTC/) |
 | Change Video Resolutions in your Live Sessions | [Demo](https://rtcmulticonnection.herokuapp.com/demos/change-resolutions.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/change-resolutions.html) |
