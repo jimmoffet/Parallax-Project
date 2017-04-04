@@ -72,13 +72,14 @@ ul li, nav li {
 
 a {
     margin: 0 10px;
+    color: rgb(65, 131, 196);
 }
 
-a, h2 {
+nav a, h2, a:hover {
     color: #EC008C;
 }
 
-a:hover {
+nav a:hover {
     color: #671345;
 }
 
@@ -119,6 +120,7 @@ button[disabled], input[disabled] {
   box-shadow: none!important;
   text-shadow: none!important;
   color: #dcd7d7!important;
-  border-color: #dcd7d7!important;
+  border: 1px solid #dcd7d7!important;
   cursor: not-allowed!important;
+
 }

@@ -10,14 +10,14 @@
 
   <script src="/dist/RTCMultiConnection.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-
-  <!-- custom layout for HTML5 audio/video elements -->
-  <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 </head>
 <body>
   <header>
     <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
     <nav>
+      <li>
+        <a href="/">Home</a>
+      </li>
       <li>
         <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
@@ -87,7 +87,7 @@ document.getElementById('join-room').onclick = function() {
 
 document.getElementById('open-or-join-room').onclick = function() {
     enableInputButtons(false);
-    
+
     connection.openOrJoin(document.getElementById('room-id').value, function(isOpened, roomid) {
         if (isOpened === true) {
             showRoomURL(roomid);
@@ -121,23 +121,10 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: true
 };
 
-connection.videosContainer = document.getElementById('videos-container');
+var videosContainer = document.getElementById('videos-container');
 connection.onstream = function(event) {
-    var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
-    var mediaElement = getMediaElement(event.mediaElement, {
-        title: event.userid,
-        buttons: ['full-screen'],
-        width: width,
-        showOnMouseEnter: false
-    });
-
-    connection.videosContainer.appendChild(mediaElement);
-
-    setTimeout(function() {
-        mediaElement.media.play();
-    }, 5000);
-
-    mediaElement.id = event.streamid;
+    event.mediaElement.id = event.streamid;
+    videosContainer.appendChild(event.mediaElement);
 };
 
 connection.onstreamended = function(event) {
@@ -147,10 +134,10 @@ connection.onstreamended = function(event) {
     }
 };
 
-connection.__onEntireSessionClosed = connection.onEntireSessionClosed;
+connection.__internal_reference_onEntireSessionClosed = connection.onEntireSessionClosed;
 connection.onEntireSessionClosed = function(event) {
-  enableInputButtons(true);
-  connection.__onEntireSessionClosed(event);
+    enableInputButtons(true);
+    connection.__internal_reference_onEntireSessionClosed(event);
 };
 
 function enableInputButtons(enable) {
