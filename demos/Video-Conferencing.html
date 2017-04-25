@@ -174,12 +174,22 @@ function draw() {
 
 function toggleVid() {
   if (vcheck) {
-  tmpVid = document.querySelector('video');
-  console.log(tmpVid.src);
-  tmpSrc = tmpVid.src;
-  live = createVideo(tmpVid.src);
-  live.hide();
-  loaded = true;
+    var vidList = document.querySelectorAll('video');
+    if (vidList.length > 1) {
+      var tmpVid = vidList[1];
+      console.log(tmpVid.src);
+      tmpSrc = tmpVid.src;
+      live = createVideo(tmpVid.src);
+      live.hide();
+      loaded = true;
+    } else {
+      var tmpVid = vidList[0];
+      console.log(tmpVid.src);
+      tmpSrc = tmpVid.src;
+      live = createVideo(tmpVid.src);
+      live.hide();
+      loaded = true;
+    }
   } else {
     button.html('try again');
   }
