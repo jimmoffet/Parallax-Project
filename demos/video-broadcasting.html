@@ -79,12 +79,10 @@
                     OfferToReceiveAudio: false,
                     OfferToReceiveVideo: false
                 };
-                // connection.open(document.getElementById('room-id').value, function() {
-                //     showRoomURL(connection.sessionid);
-                // });
-                connection.open('parallax', function() {
+                connection.open(document.getElementById('room-id').value, function() {
                     showRoomURL(connection.sessionid);
                 });
+                
             };
 
             document.getElementById('join-room').onclick = function() {
