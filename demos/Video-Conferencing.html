@@ -91,11 +91,11 @@ connection.socketURL = '/';
 // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 connection.socketMessageEvent = 'video-conference-demo';
 connection.session = {
-    audio: true,
+    audio: false,
     video: true
 };
 connection.sdpConstraints.mandatory = {
-    OfferToReceiveAudio: true,
+    OfferToReceiveAudio: false,
     OfferToReceiveVideo: true
 };
 connection.videosContainer = document.getElementById('videos-container');
