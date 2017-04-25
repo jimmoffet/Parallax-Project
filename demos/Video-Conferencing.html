@@ -99,6 +99,9 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: true
 };
 connection.videosContainer = document.getElementById('videos-container');
+
+var vcheck = false;
+
 connection.onstream = function(event) {
     var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
     var mediaElement = getMediaElement(event.mediaElement, {
@@ -107,6 +110,9 @@ connection.onstream = function(event) {
         width: width,
         showOnMouseEnter: false
     });
+
+    vcheck = true;
+
     connection.videosContainer.appendChild(mediaElement);
     setTimeout(function() {
         mediaElement.media.play();
