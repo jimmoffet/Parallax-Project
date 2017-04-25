@@ -153,20 +153,20 @@ function draw() {
   stroke(255);
   if(loaded){
     //ellipse(140, 40, 80, 80);
-    image(live,0,0,320,180); 
-    //background(255);
-    // live.loadPixels();
-    // var stepSize = round(constrain(1 / 12, 6, 32));
-    // for (var y=0; y<height; y+=stepSize) {
-    //   for (var x=0; x<width; x+=stepSize) {
-    //     var i = y * width + x;
-    //     var darkness = (255 - live.pixels[i*4]) / 255;
-    //     var radius = stepSize * darkness;
-    //     ellipse(x, y, radius, radius);
-    //   }
-    // }
+    image(live,0,0,320,240); 
+    background(255);
+    live.loadPixels();
+    var stepSize = round(constrain(1 / 12, 6, 32));
+    for (var y=0; y<height; y+=stepSize) {
+      for (var x=0; x<width; x+=stepSize) {
+        var i = y * width + x;
+        var darkness = (255 - live.pixels[i*4]) / 255;
+        var radius = stepSize * darkness;
+        ellipse(x, y, radius, radius);
+      }
+    }
   } else {
-    image(nyc, 0, 0, 320, 180);
+    image(nyc, 0, 0, 320, 240);
 
   }
   //image(fingers2, 0, 0, 320, 180);
