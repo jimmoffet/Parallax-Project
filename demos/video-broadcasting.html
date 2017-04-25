@@ -40,7 +40,7 @@
 
         <header style="text-align: center;">
             <h1>Video Broadcasting using RTCMultiConnection</h1>
-            <p>
+            <!-- <p>
                 <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
@@ -48,13 +48,13 @@
                 <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
                 <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a> .
                 <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
-            </p>
+            </p> -->
         </header>
 
 
         <section class="experiment">
             <div class="make-center">
-                <input type="text" id="room-id" value="abcdef">
+                <input type="text" id="room-id" value="parallax" placeholder="parallax">
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
@@ -79,7 +79,10 @@
                     OfferToReceiveAudio: false,
                     OfferToReceiveVideo: false
                 };
-                connection.open(document.getElementById('room-id').value, function() {
+                // connection.open(document.getElementById('room-id').value, function() {
+                //     showRoomURL(connection.sessionid);
+                // });
+                connection.open('parallax', function() {
                     showRoomURL(connection.sessionid);
                 });
             };
@@ -212,7 +215,7 @@
             }
         </script>
 
-        <section class="experiment own-widgets latest-commits">
+       <!--  <section class="experiment own-widgets latest-commits">
             <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
             <div id="github-commits"></div>
         </section>
@@ -235,16 +238,16 @@
         <script>
             window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
         </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script> -->
 
     </article>
 
     <footer>
-        <p>
+        <!-- <p>
             <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
             <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-        </p>
+        </p> -->
     </footer>
 
 </body>
