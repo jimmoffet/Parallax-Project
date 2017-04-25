@@ -131,6 +131,61 @@ function disableInputButtons() {
     document.getElementById('join-room').disabled = true;
     document.getElementById('room-id').disabled = true;
 }
+
+var nyc;
+var live;
+var loaded = false;
+
+function setup() {
+  createCanvas(640, 360);
+  nyc = createVideo(['assets/nyc.webm']);
+  nyc.loop();
+  nyc.hide();
+  noStroke();
+  fill(0);
+  button = createButton('play');
+  button.mousePressed(toggleVid); // attach button listener
+}
+
+function draw() {
+  
+  fill(0);
+  stroke(255);
+  if(loaded){
+    //ellipse(140, 40, 80, 80);
+    //image(live,0,0,320,180); 
+    background(255);
+    live.loadPixels();
+    var stepSize = round(constrain(mouseX / 12, 6, 32));
+    for (var y=0; y<height; y+=stepSize) {
+      for (var x=0; x<width; x+=stepSize) {
+        var i = y * width + x;
+        var darkness = (255 - live.pixels[i*4]) / 255;
+        var radius = stepSize * darkness;
+        ellipse(x, y, radius, radius);
+      }
+    }
+  } else {
+    image(nyc, 0, 0, 320, 180);
+
+  }
+  //image(fingers2, 0, 0, 320, 180);
+}
+
+function toggleVid() {
+  if (vcheck) {
+  tmpVid = document.querySelector('video');
+  console.log(tmpVid.src);
+  tmpSrc = tmpVid.src;
+  live = createVideo(tmpVid.src);
+  live.hide();
+  loaded = true;
+  } else {
+    button.html('try again');
+  }
+
+}
+
 // ......................................................
 // ......................Handling Room-ID................
 // ......................................................
