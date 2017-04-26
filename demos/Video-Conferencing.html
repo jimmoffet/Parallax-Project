@@ -5,9 +5,10 @@
   <title>Video Conferencing using RTCMultiConnection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="shortcut icon" href="/demos/logo.png">
-  <link rel="stylesheet" type="text/css" href="/demos/stylesheet.css">
+  <link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>
 <body>
+<div id="bye">
   <header>
     <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
     <nav>
@@ -40,7 +41,7 @@
   </h1>
 
   <section class="make-center">
-    <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+    <input type="text" id="room-id" value="parallax" autocorrect=off autocapitalize=off size=20>
     <button id="open-room">Open Room</button>
     <button id="join-room">Join Room</button>
     <button id="open-or-join-room">Auto Open Or Join Room</button>
@@ -49,6 +50,15 @@
 
     <div id="videos-container"></div>
   </section>
+  <div id="content">
+    <div id="send">
+      <input type="text" id="data" size="100"/><br>
+      <input type="button" id="sendtext" value="send text"/>
+      <div id="output"></div>
+    </div>
+  </div> 
+
+</div>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
@@ -58,8 +68,80 @@
 
 <script language="javascript" type="text/javascript" src="libraries/p5.js"></script>
 <script language="javascript" type="text/javascript" src="libraries/p5.dom.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 
 <script>
+// ......................................................
+// ...................WebSocket Stuff....................
+// ......................................................
+var host = "ws://localhost:9090/ws";
+var socket = new WebSocket(host);
+//var datastring = "";
+var X = 0;
+var Y = 0;
+var W = 0;
+var H = 0;
+//console.log("socket status: " + socket.readyState);   
+
+jQuery(function($) {
+  var $txt = $("#data");
+  var $btnSend = $("#sendtext");
+
+  $txt.focus();
+
+  // event handlers for UI
+  $btnSend.on('click', function() {
+    var text = $txt.val();
+    if (text == "") {
+      return;
+    }
+    socket.send(text);
+    $txt.val("");
+  }
+  );
+
+  $txt.keypress(function(evt) {
+    if (evt.which == 13) {
+      $btnSend.click();
+    }
+  }
+  );
+}
+);  
+
+function socketstuff() {
+  if (socket) {
+
+    socket.onopen = function() {
+      //alert("connection opened....");
+    }
+
+    socket.onmessage = function(msg) {
+      showServerResponse(msg.data);
+    }
+
+    socket.onclose = function() {
+      //alert("connection closed....");
+      showServerResponse("The connection has been closed.");
+    }
+  } else {
+    console.log("invalid socket");
+  }
+
+  function showServerResponse(txt) {
+    var p = document.createElement('p');
+    p.innerHTML = txt;
+    var incoming = txt.split(" ");
+    X = parseInt(incoming[0]);
+    Y = parseInt(incoming[1]);
+    W = parseInt(incoming[2]);
+    H = parseInt(incoming[3]);
+
+    document.getElementById('output').appendChild(p);
+  }
+}
+
+socketstuff();
 // ......................................................
 // .......................UI Code........................
 // ......................................................
@@ -135,14 +217,23 @@ function disableInputButtons() {
 var nyc;
 var live;
 var loaded = false;
+var img;
+var imgMask;
+var vid;
+var vid2;
+var vidX;
+var one = true;
 
 function setup() {
-  createCanvas(640, 360);
-  nyc = createVideo(['assets/nyc.webm']);
-  nyc.loop();
-  nyc.hide();
-  noStroke();
-  fill(0);
+  createCanvas(windowWidth, windowHeight);
+
+  //live = createVideo(['assets/nyc.webm']);
+  //live.loop(); // set the video to loop and start playing
+  //live.hide(); // by default video shows up in separate dom
+  imageMode(CENTER);
+
+  //noStroke();
+  //fill(0);
   button = createButton('play');
   button.mousePressed(toggleVid); // attach button listener
 }
@@ -152,34 +243,33 @@ function draw() {
   fill(0);
   stroke(255);
   if(loaded){
-    //ellipse(140, 40, 80, 80);
-    image(live,0,0,320,240); 
-    background(255);
-    live.loadPixels();
-    var stepSize = round(constrain(1 / 12, 6, 32));
-    for (var y=0; y<height; y+=stepSize) {
-      for (var x=0; x<width; x+=stepSize) {
-        var i = y * width + x;
-        var darkness = (255 - live.pixels[i*4]) / 255;
-        var radius = stepSize * darkness;
-        ellipse(x, y, radius, radius);
-      }
-    }
+    //console.log('loaded is true');
+    var x = -1*X+475;
+    //image(live, x + (width/2)+W/2, Y + (height/2)-300, 3200, 1796);
+    document.getElementById('bye').style.display = "none"; 
+    image(live, x + (width/2)+W/2, Y + (height/2)-300, 3200, 1796);
+    //image(live, 100, 100, 3200, 1800);
+    //background(255);
   } else {
-    image(nyc, 0, 0, 320, 240);
-
+    //var x = -1*X+475;
+    //image(live, x + (width/2)+W/2, Y + (height/2)-300, 3200, 1796);
+    //image(live, 0, 0, 3200, 1796);
+    //background(255);
   }
+
   //image(fingers2, 0, 0, 320, 180);
 }
 
 function toggleVid() {
   if (vcheck) {
+    console.log('vcheck is true');
     var vidList = document.querySelectorAll('video');
     if (vidList.length > 1) {
       var tmpVid = vidList[1];
       console.log(tmpVid.src);
       tmpSrc = tmpVid.src;
       live = createVideo(tmpVid.src);
+      live.play()
       live.hide();
       loaded = true;
     } else {
@@ -187,6 +277,7 @@ function toggleVid() {
       console.log(tmpVid.src);
       tmpSrc = tmpVid.src;
       live = createVideo(tmpVid.src);
+      live.play()
       live.hide();
       loaded = true;
     }
@@ -255,21 +346,6 @@ if (roomid && roomid.length) {
     disableInputButtons();
 }
 </script>
-
-  <section>
-    <h2>iOS or Android</h2>
-    <p>
-      This demo <a href="http://webrtcweb.com/cordova-apps/video-conferencing/" target="_blank">has built-in (open-sourced)</a> cordova apps both for <b>iOS</b> and <b>Android</b>.
-    </p>
-
-    <p>
-      Google AppStore Link: <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
-    </p>
-  </section>
-
-  <footer>
-    <small id="send-message"></small>
-  </footer>
 
   <script src="https://cdn.webrtc-experiment.com/common.js"></script>
 </body>
