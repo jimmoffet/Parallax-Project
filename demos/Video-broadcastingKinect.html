@@ -88,7 +88,7 @@
             document.getElementById('join-room').onclick = function() {
                 disableInputButtons();
                 connection.sdpConstraints.mandatory = {
-                    OfferToReceiveAudio: true,
+                    OfferToReceiveAudio: false,
                     OfferToReceiveVideo: true
                 };
                 connection.join(document.getElementById('room-id').value);
@@ -261,15 +261,21 @@
 		socket.on('bodyFrame', function(bodyFrame){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			var index = 0;
+
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
+					var index2 = 0;
 					for(var jointType in body.joints) {
 						var joint = body.joints[jointType];
 						ctx.fillStyle = colors[index];
 						ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
-						ctx.font = "30px Arial";
-						ctx.fillText("Hello World",10,50);
+						ctx.fillStyle = colors[index+1];
+						ctx.font = "20px Arial";
+						ctx.fillText(index2,joint.depthX * 512, joint.depthY * 424);
+						index2++;
 					}
+					ctx.font = "30px Arial";
+					ctx.fillText(body.joints[3].depthX,10,50);
 					//draw hand states
 					//updateHandState(body.leftHandState, body.joints[7]);
 					//updateHandState(body.rightHandState, body.joints[11]);
