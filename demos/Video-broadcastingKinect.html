@@ -64,7 +64,7 @@
 
             <div id="videos-container"></div>
         </section>
-
+        <canvas id="canvas" width="512" height="424"></canvas>
         <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
@@ -213,7 +213,33 @@
             }
         </script>
 
-        
+    <script>
+		var socket = io.connect('/');
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+
+		var imageProcessing = false;
+		var imageWorkerThread = new Worker("js/GrayscaleImageWorker.js");
+		
+		imageWorkerThread.addEventListener("message", function (event) {
+			if(event.data.message === 'imageReady') {
+                ctx.putImageData(event.data.imageData, 0, 0);
+                imageProcessing = false;
+			}
+		});
+
+		imageWorkerThread.postMessage({
+			"message": "setImageData",
+			"imageData": ctx.createImageData(canvas.width, canvas.height)
+		});
+
+		socket.on('depthFrame', function(imageBuffer){
+			if(!imageProcessing) {
+				imageProcessing = true;
+				imageWorkerThread.postMessage({ "message": "processImageData", "imageBuffer": imageBuffer });
+			}
+		});
+	</script>
 
        <!--  <section class="experiment own-widgets latest-commits">
             <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
