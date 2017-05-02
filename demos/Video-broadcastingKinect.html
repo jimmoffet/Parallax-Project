@@ -66,7 +66,7 @@
 		    </section>
 		</div>
 	
-    <div id="vidbox"></div>
+    <div id="vidbox"><video id="bunny"></video></div>
     </article>
 	<canvas id="canvas" width="512" height="424"></canvas>
 
@@ -271,10 +271,11 @@
         // ......................................................
 
 
-        var video = document.createElement('video');
+        var video = document.getElementById('bunny');
 		var source = document.createElement('source');
-		document.getElementById('vidbox').appendChild(video);
-		addSourceToVideo(video, 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
+		source.setAttribute('src', 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
+		video.appendChild(source);
+		video.play();
 
 		video.addEventListener('play', function() {
 			resizeCanvas();
@@ -294,7 +295,10 @@
 						console.log(vidList[0].src);
 						var tmpVid = vidList[0];
 						
-						changeVideo(video, 'nyc.webm');
+						source.setAttribute('src', 'nyc.webm'); 
+					    video.load();
+					    video.loop();
+					    video.play();
 						//video.play()
 						console.log('new source is');
 						console.log(tmpVid.src);
