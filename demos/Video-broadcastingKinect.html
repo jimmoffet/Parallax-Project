@@ -4,14 +4,23 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <!--<link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">-->
 
     <title>Video Broadcasting using RTCMultiConnection</title>
 
     <meta name="description" content="One-to-Many Video Broadcasting using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
-    <style>
+    <style type="text/css">
+    	html, body {
+			height: 100%;
+		}
+
+		body {
+			margin: 0;
+			overflow: hidden;
+		}
+
         video {
             object-fit: fill;
             width: 30%;
@@ -37,284 +46,263 @@
 
 <body>
 	<article id="all">
-    <div >
-        <header style="text-align: center;">
-            <h1>Video Broadcasting using RTCMultiConnection</h1>
-            
-        </header>
+		<div >
+		    <header style="text-align: center;">
+		        <h1>Video Broadcasting using RTCMultiConnection</h1>
+		    </header>
 
 
-        <section class="experiment">
-            <div class="make-center">
-                <input type="text" id="room-id" value="parallax" placeholder="parallax">
-                <button id="open-room">Open Room</button>
-                <button id="join-room">Join Room</button>
-                <button id="open-or-join-room">Auto Open Or Join Room</button>
+		    <section class="experiment">
+		        <div class="make-center">
+		            <input type="text" id="room-id" value="parallax" placeholder="parallax">
+		            <button id="open-room">Open Room</button>
+		            <button id="join-room">Join Room</button>
+		            <button id="open-or-join-room">Auto Open Or Join Room</button>
 
-                <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
-            </div>
+		            <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+		        </div>
 
-            <div id="videos-container"></div>
-        </section>
-    </div>
+		        <div id="videos-container"></div>
+		    </section>
+		</div>
+	
+    <div id="vidbox"></div>
     </article>
-    <div id="vidbox" style="position:absolute;top:0px;left:0px;width:200px;"><video id="bunny"></video></div>
+	<canvas id="canvas" width="512" height="424"></canvas>
 
-    <canvas id="canvas" width="512" height="424"></canvas>
-        <script src="/dist/RTCMultiConnection.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+    <script src="/dist/RTCMultiConnection.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
-        <script>
-        	// ......................................................
-			// ...................WebSocket Stuff....................
-			// ......................................................
+    <script>
+    	// ......................................................
+		// ...................WebSocket Stuff....................
+		// ......................................................
 
-			var socket = io.connect('https://localhost:8000');
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-			var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
+		var socket = io.connect('https://localhost:8000');
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+		var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
 
-			function addSourceToVideo(element, src, type) {
-			    var source = document.createElement('source');
-			    source.src = src;
-			    source.type = type;
-			    element.appendChild(source);
-			}
+		function addSourceToVideo(element, src, type) {
+		    var source = document.createElement('source');
+		    source.src = src;
+		    source.type = type;
+		    element.appendChild(source);
+		}
 
-			
-			
+		function changeVideo(element, src) {
+		    source.setAttribute('src', src); 
+		    element.load();
+		    element.loop = true;
+		    element.play();
+		}
+		
+		var winWidth = window.innerWidth;
+		var winHeight = window.innerHeight;
 
-			var winWidth = window.innerWidth;
-			var winHeight = window.innerHeight;
-
-			window.addEventListener('resize', resizeCanvas, false);
-	  		function resizeCanvas() {
-	                canvas.width = winWidth;
-	                canvas.height = winHeight;
-	                
-	        }
-	        
-
-            // ......................................................
-            // .......................UI Code........................
-            // ......................................................
-
-            document.getElementById('open-room').onclick = function() {
-                disableInputButtons();
-                connection.sdpConstraints.mandatory = {
-                    OfferToReceiveAudio: false,
-                    OfferToReceiveVideo: false
-                };
-                connection.open(document.getElementById('room-id').value, function() {
-                    showRoomURL(connection.sessionid);
-                });
+		window.addEventListener('resize', resizeCanvas, false);
+  		function resizeCanvas() {
+                canvas.width = winWidth;
+                canvas.height = winHeight;
                 
+        }
+        
+
+        // ......................................................
+        // .......................UI Code........................
+        // ......................................................
+
+        document.getElementById('open-room').onclick = function() {
+            disableInputButtons();
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
             };
+            connection.open(document.getElementById('room-id').value, function() {
+                showRoomURL(connection.sessionid);
+            });
+            
+        };
 
-            document.getElementById('join-room').onclick = function() {
-                disableInputButtons();
-                connection.sdpConstraints.mandatory = {
-                    OfferToReceiveAudio: false,
-                    OfferToReceiveVideo: true
-                };
-                connection.join(document.getElementById('room-id').value);
+        document.getElementById('join-room').onclick = function() {
+            disableInputButtons();
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: true
             };
+            connection.join(document.getElementById('room-id').value);
+        };
 
-            document.getElementById('open-or-join-room').onclick = function() {
-                disableInputButtons();
-                connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
-                    if(!isRoomExists) {
-                        showRoomURL(roomid);
-                    }
-                });
-            };
-
-            // ......................................................
-            // ..................RTCMultiConnection Code.............
-            // ......................................................
-
-            var connection = new RTCMultiConnection();
-
-            // by default, socket.io server is assumed to be deployed on your own URL
-            connection.socketURL = '/';
-
-            // comment-out below line if you do not have your own socket.io server
-            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-
-            connection.socketMessageEvent = 'video-broadcast-demo';
-
-            connection.session = {
-                audio: false,
-                video: true,
-                oneway: true
-            };
-
-            connection.videosContainer = document.getElementById('videos-container');
-            connection.onstream = function(event) {
-                connection.videosContainer.appendChild(event.mediaElement);
-                event.mediaElement.play();
-                setTimeout(function() {
-                    event.mediaElement.play();
-                }, 5000);
-            };
-
-            function disableInputButtons() {
-                document.getElementById('open-or-join-room').disabled = true;
-                document.getElementById('open-room').disabled = true;
-                document.getElementById('join-room').disabled = true;
-                document.getElementById('room-id').disabled = true;
-            }
-
-            // ......................................................
-            // ......................Handling Room-ID................
-            // ......................................................
-
-            function showRoomURL(roomid) {
-                var roomHashURL = '#' + roomid;
-                var roomQueryStringURL = '?roomid=' + roomid;
-
-                var html = '<h2>Unique URL for your room:</h2><br>';
-
-                html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
-                html += '<br>';
-                html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
-
-                var roomURLsDiv = document.getElementById('room-urls');
-                roomURLsDiv.innerHTML = html;
-
-                roomURLsDiv.style.display = 'block';
-            }
-
-            (function() {
-                var params = {},
-                    r = /([^&=]+)=?([^&]*)/g;
-
-                function d(s) {
-                    return decodeURIComponent(s.replace(/\+/g, ' '));
+        document.getElementById('open-or-join-room').onclick = function() {
+            disableInputButtons();
+            connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
+                if(!isRoomExists) {
+                    showRoomURL(roomid);
                 }
-                var match, search = window.location.search;
-                while (match = r.exec(search.substring(1)))
-                    params[d(match[1])] = d(match[2]);
-                window.params = params;
+            });
+        };
+
+        // ......................................................
+        // ..................RTCMultiConnection Code.............
+        // ......................................................
+
+        var connection = new RTCMultiConnection();
+
+        // by default, socket.io server is assumed to be deployed on your own URL
+        connection.socketURL = '/';
+
+        // comment-out below line if you do not have your own socket.io server
+        // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+        connection.socketMessageEvent = 'video-broadcast-demo';
+
+        connection.session = {
+            audio: false,
+            video: true,
+            oneway: true
+        };
+
+        connection.videosContainer = document.getElementById('videos-container');
+        connection.onstream = function(event) {
+            connection.videosContainer.appendChild(event.mediaElement);
+            event.mediaElement.play();
+            setTimeout(function() {
+                event.mediaElement.play();
+            }, 5000);
+        };
+
+        function disableInputButtons() {
+            document.getElementById('open-or-join-room').disabled = true;
+            document.getElementById('open-room').disabled = true;
+            document.getElementById('join-room').disabled = true;
+            document.getElementById('room-id').disabled = true;
+        }
+
+        // ......................................................
+        // ......................Handling Room-ID................
+        // ......................................................
+
+        function showRoomURL(roomid) {
+            var roomHashURL = '#' + roomid;
+            var roomQueryStringURL = '?roomid=' + roomid;
+
+            var html = '<h2>Unique URL for your room:</h2><br>';
+
+            html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+            html += '<br>';
+            html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+            var roomURLsDiv = document.getElementById('room-urls');
+            roomURLsDiv.innerHTML = html;
+
+            roomURLsDiv.style.display = 'block';
+        }
+
+        (function() {
+            var params = {},
+                r = /([^&=]+)=?([^&]*)/g;
+
+            function d(s) {
+                return decodeURIComponent(s.replace(/\+/g, ' '));
+            }
+            var match, search = window.location.search;
+            while (match = r.exec(search.substring(1)))
+                params[d(match[1])] = d(match[2]);
+            window.params = params;
+        })();
+
+        var roomid = '';
+        if (localStorage.getItem(connection.socketMessageEvent)) {
+            roomid = localStorage.getItem(connection.socketMessageEvent);
+        } else {
+            roomid = connection.token();
+        }
+        document.getElementById('room-id').value = roomid;
+        document.getElementById('room-id').onkeyup = function() {
+            localStorage.setItem(connection.socketMessageEvent, this.value);
+        };
+
+        var hashString = location.hash.replace('#', '');
+        if(hashString.length && hashString.indexOf('comment-') == 0) {
+          hashString = '';
+        }
+
+        var roomid = params.roomid;
+        if(!roomid && hashString.length) {
+            roomid = hashString;
+        }
+
+        if(roomid && roomid.length) {
+            document.getElementById('room-id').value = roomid;
+            localStorage.setItem(connection.socketMessageEvent, roomid);
+
+            // auto-join-room
+            (function reCheckRoomPresence() {
+                connection.checkPresence(roomid, function(isRoomExists) {
+                    if(isRoomExists) {
+                        connection.join(roomid);
+                        return;
+                    }
+
+                    setTimeout(reCheckRoomPresence, 5000);
+                });
             })();
 
-            var roomid = '';
-            if (localStorage.getItem(connection.socketMessageEvent)) {
-                roomid = localStorage.getItem(connection.socketMessageEvent);
-            } else {
-                roomid = connection.token();
-            }
-            document.getElementById('room-id').value = roomid;
-            document.getElementById('room-id').onkeyup = function() {
-                localStorage.setItem(connection.socketMessageEvent, this.value);
-            };
-
-            var hashString = location.hash.replace('#', '');
-            if(hashString.length && hashString.indexOf('comment-') == 0) {
-              hashString = '';
-            }
-
-            var roomid = params.roomid;
-            if(!roomid && hashString.length) {
-                roomid = hashString;
-            }
-
-            if(roomid && roomid.length) {
-                document.getElementById('room-id').value = roomid;
-                localStorage.setItem(connection.socketMessageEvent, roomid);
-
-                // auto-join-room
-                (function reCheckRoomPresence() {
-                    connection.checkPresence(roomid, function(isRoomExists) {
-                        if(isRoomExists) {
-                            connection.join(roomid);
-                            return;
-                        }
-
-                        setTimeout(reCheckRoomPresence, 5000);
-                    });
-                })();
-
-                disableInputButtons();
-            }
+            disableInputButtons();
+        }
 
 
-            // ......................................................
-            // ..................headtracking stuff..................
-            // ......................................................
+        // ......................................................
+        // ..................headtracking stuff..................
+        // ......................................................
 
-	        
-			var video = document.createElement('video');
-			var vidList = document.querySelectorAll('video');
-			console.log(vidList);
+        
+		var video = document.createElement('video');
+		var source = document.createElement('source');
+		var vidList = document.querySelectorAll('video');
+		document.getElementById('vidbox').appendChild(video);
+		addSourceToVideo(video, 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
 
-			if (vidList.length > 1) {
-				var tmpVid = vidList[1];
-				video = tmpVid;
-				console.log(video.src);
-				document.getElementById('vidbox').appendChild(video);
-				//addSourceToVideo(tmpVid, 'nyc.webm', 'video/webm');
-				//video.loop = true;
-				//video.play();
-				document.getElementById('bunny').style.display = "none";
-				document.getElementById('vidbox').style.display = "none";
-	  		} else {
-	  			
-				document.getElementById('vidbox').appendChild(video);
-				addSourceToVideo(video, 'nyc.webm', 'video/webm');
-				console.log(video.src);
-				video.loop = true;
-				video.play();
-				document.getElementById('bunny').style.display = "none";
-				document.getElementById('vidbox').style.display = "none";	
-			}	
+		video.addEventListener('play', function() {
+			resizeCanvas();
+		}, 0);
 
-			video.addEventListener('play', function() {
-				resizeCanvas();
-			}, 0);
+		var swap = true;
 
-            socket.on('bodyFrame', function(bodyFrame){
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			var index = 0;
-				bodyFrame.bodies.forEach(function(body){
-					if(body.tracked) {
-						document.getElementById('all').style.display = "none";
-						// for(var jointType in body.joints) {
-						// 	var joint = body.joints[jointType];
-						// 	ctx.fillStyle = colors[index];
-						// 	ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
-						// }
-						
-						
-
-						if (!video.paused && !video.ended) {
-							var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
-							ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
-							//setTimeout(loop, 1000 / 30); // drawing at 30fps
-							//document.getElementById('video').style.display = "none";
-						}
-
-						ctx.font = "30px Arial";
-						ctx.fillStyle = colors[index];
-						ctx.fillText(Zpos,10,50);
-						ctx.fillRect(body.joints[3].depthX * canvas.width, body.joints[3].depthY * canvas.height, 10, 10);
-
-						index++;
+        socket.on('bodyFrame', function(bodyFrame){
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		var index = 0;
+			bodyFrame.bodies.forEach(function(body){
+				if(body.tracked) {
+					document.getElementById('all').style.display = "none";
+					if (swap) {
+						changeVideo(video, vidList[1].src);
+						swap = false;
 					}
-				
-				});
+
+					// for(var jointType in body.joints) {
+					// 	var joint = body.joints[jointType];
+					// 	ctx.fillStyle = colors[index];
+					// 	ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
+					// }
+					
+					if (!video.paused && !video.ended) {
+						var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
+						ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
+					}
+
+					ctx.font = "30px Arial";
+					ctx.fillStyle = colors[index];
+					ctx.fillText(Zpos,10,50);
+					ctx.fillRect(body.joints[3].depthX * canvas.width, body.joints[3].depthY * canvas.height, 10, 10);
+
+					index++;
+				}
+			
 			});
+		});
 
-
-        </script>
-
-
-
-
-
-    
-
-
+    </script>
 
 </body>
 
