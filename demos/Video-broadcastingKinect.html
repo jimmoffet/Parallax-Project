@@ -47,19 +47,17 @@
 <body>
 	<article id="all">
 		<div >
-		    <header style="text-align: center;">
-		        <h1>Video Broadcasting using RTCMultiConnection</h1>
-		    </header>
-
 
 		    <section class="experiment">
 		        <div class="make-center">
 		            <input type="text" id="room-id" value="parallax" placeholder="parallax">
 		            <button id="open-room">Open Room</button>
-		            <button id="join-room">Join Room</button>
-		            <button id="open-or-join-room">Auto Open Or Join Room</button>
+		            
+		            <button id="join-room" style="display:none">Join Room</button>
+		            <button id="open-or-join-room" style="display:none">Auto Open Or Join Room</button>
+					
+		            <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0; display: none;"></div>
 
-		            <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
 		        </div>
 
 		        <div id="videos-container"></div>
@@ -102,7 +100,6 @@
 		var winHeight = window.innerHeight;
 
 		var vidList = document.querySelectorAll('video');
-
 
 		window.addEventListener('resize', resizeCanvas, false);
   		function resizeCanvas() {
@@ -275,6 +272,7 @@
 		var source = document.createElement('source');
 		source.setAttribute('src', 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
 		video.appendChild(source);
+		video.loop = true;
 		video.play();
 
 		video.addEventListener('play', function() {
@@ -291,21 +289,15 @@
 						console.log('video swap has run');
 					    var vidList = document.querySelectorAll('video');
 					    console.log(vidList);
-						//video = vidList[0];
-						console.log(vidList[0].src);
 						var tmpVid = vidList[0];
-						
 						source.setAttribute('src', tmpVid.src); 
 					    video.load();
-					    //video.loop = true;
 					    video.play();
-						//video.play()
 						console.log('new source is');
 						console.log(tmpVid.src);
 						vcheck = false;
 					}
 
-					console.log('did vcheck again just happen?');
 					document.getElementById('all').style.display = "none";
 
 					// for(var jointType in body.joints) {
