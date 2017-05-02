@@ -93,9 +93,7 @@
 	                canvas.height = winHeight;
 	                
 	        }
-	        video.addEventListener('play', function() {
-	                  resizeCanvas();
-	                }, 0);
+	        
 
             // ......................................................
             // .......................UI Code........................
@@ -267,6 +265,10 @@
 				document.getElementById('bunny').style.display = "none";
 				document.getElementById('vidbox').style.display = "none";	
 			}	
+
+			video.addEventListener('play', function() {
+				resizeCanvas();
+			}, 0);
 
             socket.on('bodyFrame', function(bodyFrame){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
