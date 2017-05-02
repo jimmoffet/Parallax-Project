@@ -36,18 +36,11 @@
 </head>
 
 <body>
-    <div id="all">
+	<article id="all">
+    <div >
         <header style="text-align: center;">
             <h1>Video Broadcasting using RTCMultiConnection</h1>
-            <!-- <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
-            </p> -->
+            
         </header>
 
 
@@ -64,6 +57,7 @@
             <div id="videos-container"></div>
         </section>
     </div>
+    </article>
     <div id="vidbox" style="position:absolute;top:0px;left:0px;width:200px;"><video id="bunny"></video></div>
 
     <canvas id="canvas" width="512" height="424"></canvas>
@@ -262,6 +256,7 @@
 			var index = 0;
 				bodyFrame.bodies.forEach(function(body){
 					if(body.tracked) {
+						document.getElementById('all').style.display = "none";
 						// for(var jointType in body.joints) {
 						// 	var joint = body.joints[jointType];
 						// 	ctx.fillStyle = colors[index];
