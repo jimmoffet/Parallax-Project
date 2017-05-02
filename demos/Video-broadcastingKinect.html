@@ -81,13 +81,8 @@
 			    element.appendChild(source);
 			}
 
-			var video = document.createElement('video');
-			document.getElementById('vidbox').appendChild(video);
-			addSourceToVideo(video, 'nyc.webm', 'video/webm');
-			video.loop = true;
-			video.play();
-			document.getElementById('bunny').style.display = "none";
-			document.getElementById('vidbox').style.display = "none";
+			
+			
 
 			var winWidth = window.innerWidth;
 			var winHeight = window.innerHeight;
@@ -249,6 +244,29 @@
             // ......................................................
             // ..................headtracking stuff..................
             // ......................................................
+
+	        var vidList = document.querySelectorAll('video');
+			var video = document.createElement('video');
+
+			if (vidList.length > 1) {
+				var tmpVid = vidList[0];
+				console.log(tmpVid.src);
+				video = tmpVid;
+				document.getElementById('vidbox').appendChild(video);
+				//addSourceToVideo(tmpVid, 'nyc.webm', 'video/webm');
+				//video.loop = true;
+				//video.play();
+				document.getElementById('bunny').style.display = "none";
+				document.getElementById('vidbox').style.display = "none";
+	  		} else {
+	  			
+				document.getElementById('vidbox').appendChild(video);
+				addSourceToVideo(video, 'nyc.webm', 'video/webm');
+				video.loop = true;
+				video.play();
+				document.getElementById('bunny').style.display = "none";
+				document.getElementById('vidbox').style.display = "none";	
+			}	
 
             socket.on('bodyFrame', function(bodyFrame){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
