@@ -37,7 +37,7 @@
 
 <body>
     <article>
-
+    <div id="all">
         <header style="text-align: center;">
             <h1>Video Broadcasting using RTCMultiConnection</h1>
             <!-- <p>
@@ -64,11 +64,50 @@
 
             <div id="videos-container"></div>
         </section>
+    </div>
+        <div id="vidbox" style="position:absolute;top:0px;left:0px;width:200px;"><video id="bunny"></video></div>
         <canvas id="canvas" width="512" height="424"></canvas>
         <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
         <script>
+        	// ......................................................
+			// ...................WebSocket Stuff....................
+			// ......................................................
+
+			var socket = io.connect('https://localhost:8000');
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+			var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
+
+			function addSourceToVideo(element, src, type) {
+			    var source = document.createElement('source');
+			    source.src = src;
+			    source.type = type;
+			    element.appendChild(source);
+			}
+
+			var video = document.createElement('video');
+			document.getElementById('vidbox').appendChild(video);
+			addSourceToVideo(video, '/assets/nyc.webm', 'video/webm');
+			video.loop = true;
+			video.play();
+			document.getElementById('bunny').style.display = "none";
+			document.getElementById('vidbox').style.display = "none";
+
+			var winWidth = window.innerWidth;
+			var winHeight = window.innerHeight;
+
+			window.addEventListener('resize', resizeCanvas, false);
+	  		function resizeCanvas() {
+	                canvas.width = winWidth;
+	                canvas.height = winHeight;
+	                
+	        }
+	        video.addEventListener('play', function() {
+	                  resizeCanvas();
+	                }, 0);
+
             // ......................................................
             // .......................UI Code........................
             // ......................................................
@@ -211,6 +250,44 @@
 
                 disableInputButtons();
             }
+
+
+            // ......................................................
+            // ..................headtracking stuff..................
+            // ......................................................
+
+            socket.on('bodyFrame', function(bodyFrame){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			var index = 0;
+				bodyFrame.bodies.forEach(function(body){
+					if(body.tracked) {
+						// for(var jointType in body.joints) {
+						// 	var joint = body.joints[jointType];
+						// 	ctx.fillStyle = colors[index];
+						// 	ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
+						// }
+						
+						
+
+						if (!video.paused && !video.ended) {
+							var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
+							ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
+							//setTimeout(loop, 1000 / 30); // drawing at 30fps
+							//document.getElementById('video').style.display = "none";
+						}
+
+						ctx.font = "30px Arial";
+						ctx.fillStyle = colors[index];
+						ctx.fillText(Zpos,10,50);
+						ctx.fillRect(body.joints[3].depthX * canvas.width, body.joints[3].depthY * canvas.height, 10, 10);
+
+						index++;
+					}
+				
+				});
+			});
+
+
         </script>
 
     	<script>
@@ -219,70 +296,65 @@
 		var ctx = canvas.getContext('2d');
 		var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
 
-		// handstate circle size
-		var HANDSIZE = 20;
-
-		// closed hand state color
-		var HANDCLOSEDCOLOR = "red";
-
-		// open hand state color
-		var HANDOPENCOLOR = "green";
-
-		// lasso hand state color
-		var HANDLASSOCOLOR = "blue";
-
-		function updateHandState(handState, jointPoint) {
-			switch (handState) {
-				case 3:
-					drawHand(jointPoint, HANDCLOSEDCOLOR);
-				break;
-
-				case 2:
-					drawHand(jointPoint, HANDOPENCOLOR);
-				break;
-
-				case 4:
-					drawHand(jointPoint, HANDLASSOCOLOR);
-				break;
-			}
+		function addSourceToVideo(element, src, type) {
+		    var source = document.createElement('source');
+		    source.src = src;
+		    source.type = type;
+		    element.appendChild(source);
 		}
 
-		function drawHand(jointPoint, handColor) {
-			// draw semi transparent hand cicles
-			ctx.globalAlpha = 0.75;
-			ctx.beginPath();
-			ctx.fillStyle = handColor;
-			ctx.arc(jointPoint.depthX * 512, jointPoint.depthY * 424, HANDSIZE, 0, Math.PI * 2, true);
-			ctx.fill();
-			ctx.closePath();
-			ctx.globalAlpha = 1;
-		}
+		var video = document.createElement('video');
+		document.getElementById('vidbox').appendChild(video);
+		addSourceToVideo(video, 'nyc.webm', 'video/webm');
+		video.loop = true;
+		video.play();
+		document.getElementById('bunny').style.display = "none";
+		document.getElementById('vidbox').style.display = "none";
+
+		var winWidth = window.innerWidth;
+		var winHeight = window.innerHeight;
+
+		window.addEventListener('resize', resizeCanvas, false);
+  		function resizeCanvas() {
+                canvas.width = winWidth;
+                canvas.height = winHeight;
+                
+        }
+        video.addEventListener('play', function() {
+                  resizeCanvas();
+                }, 0);
 
 		socket.on('bodyFrame', function(bodyFrame){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			var index = 0;
-
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
-					var index2 = 0;
-					for(var jointType in body.joints) {
-						var joint = body.joints[jointType];
-						ctx.fillStyle = colors[index];
-						ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
-						ctx.fillStyle = colors[index+1];
-						ctx.font = "20px Arial";
-						ctx.fillText(index2,joint.depthX * 512, joint.depthY * 424);
-						index2++;
+					// for(var jointType in body.joints) {
+					// 	var joint = body.joints[jointType];
+					// 	ctx.fillStyle = colors[index];
+					// 	ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
+					// }
+					
+					
+
+					if (!video.paused && !video.ended) {
+						var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
+						ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
+						//setTimeout(loop, 1000 / 30); // drawing at 30fps
+						//document.getElementById('video').style.display = "none";
 					}
+
 					ctx.font = "30px Arial";
-					ctx.fillText(body.joints[3].depthX,10,50);
-					//draw hand states
-					//updateHandState(body.leftHandState, body.joints[7]);
-					//updateHandState(body.rightHandState, body.joints[11]);
+					ctx.fillStyle = colors[index];
+					ctx.fillText(Zpos,10,50);
+					ctx.fillRect(body.joints[3].depthX * canvas.width, body.joints[3].depthY * canvas.height, 10, 10);
+
 					index++;
 				}
+				
 			});
 		});
+
 	</script>
 
        <!--  <section class="experiment own-widgets latest-commits">
