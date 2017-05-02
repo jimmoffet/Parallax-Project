@@ -83,10 +83,9 @@
 		var ctx = canvas.getContext('2d');
 		var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
 
-		function addSourceToVideo(element, src, type) {
+		function addSourceToVideo(element, src) {
 		    var source = document.createElement('source');
 		    source.src = src;
-		    source.type = type;
 		    element.appendChild(source);
 		    element.loop = true;
 		    element.play();
