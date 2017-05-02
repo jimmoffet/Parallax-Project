@@ -282,6 +282,8 @@
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
 					document.getElementById('all').style.display = "none";
+					console.log(swap);
+					console.log(vidList);
 					if (swap) {
 						changeVideo(video, vidList[0].src);
 						swap = false;
