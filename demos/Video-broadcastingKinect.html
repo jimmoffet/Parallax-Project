@@ -243,13 +243,15 @@
             // ..................headtracking stuff..................
             // ......................................................
 
-	        var vidList = document.querySelectorAll('video');
+	        
 			var video = document.createElement('video');
+			var vidList = document.querySelectorAll('video');
+			console.log(vidList);
 
 			if (vidList.length > 1) {
 				var tmpVid = vidList[0];
-				console.log(tmpVid.src);
 				video = tmpVid;
+				console.log(video.src);
 				document.getElementById('vidbox').appendChild(video);
 				//addSourceToVideo(tmpVid, 'nyc.webm', 'video/webm');
 				//video.loop = true;
@@ -260,6 +262,7 @@
 	  			
 				document.getElementById('vidbox').appendChild(video);
 				addSourceToVideo(video, 'nyc.webm', 'video/webm');
+				console.log(video.src);
 				video.loop = true;
 				video.play();
 				document.getElementById('bunny').style.display = "none";
