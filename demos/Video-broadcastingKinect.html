@@ -274,7 +274,7 @@
         var video = document.createElement('video');
 		var source = document.createElement('source');
 		document.getElementById('vidbox').appendChild(video);
-		addSourceToVideo(video, 'nyc.webm');
+		addSourceToVideo(video, 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
 
 		video.addEventListener('play', function() {
 			resizeCanvas();
@@ -292,12 +292,12 @@
 					    console.log(vidList);
 						//video = vidList[0];
 						console.log(vidList[0].src);
-						//tmpSrc = tmpVid.src;
+						var tmpVid = vidList[0];
 						
-						changeVideo(video, vidList[0].src);
+						changeVideo(video, 'nyc.webm');
 						//video.play()
 						console.log('new source is');
-						console.log(vidList[0].src);
+						console.log(tmpVid.src);
 						vcheck = false;
 					}
 
