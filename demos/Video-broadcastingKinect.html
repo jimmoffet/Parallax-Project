@@ -274,8 +274,8 @@
         var video = document.createElement('video');
 		var source = document.createElement('source');
 		document.getElementById('vidbox').appendChild(video);
-		changeVideo(video, 'nyc.webm');
-    	
+		addSourceToVideo(video, 'nyc.webm');
+
 		video.addEventListener('play', function() {
 			resizeCanvas();
 		}, 0);
@@ -285,7 +285,6 @@
 		var index = 0;
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
-					
 					
 					if (vcheck) {
 						console.log('video swap has run');
@@ -301,6 +300,7 @@
 						console.log(vidList[0].src);
 						vcheck = false;
 					}
+
 					console.log('did vcheck again just happen?');
 					document.getElementById('all').style.display = "none";
 
