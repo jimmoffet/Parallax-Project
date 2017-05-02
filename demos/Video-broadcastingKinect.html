@@ -285,17 +285,19 @@
 					
 					
 					if (vcheck) {
-						console.log('vcheck is true');
+						console.log('vcheck is true again');
 					    var vidList = document.querySelectorAll('video');
+					    console.log(vidList);
 						video = vidList[0];
 						console.log(video.src);
 						//tmpSrc = tmpVid.src;
 						
 						document.getElementById('vidbox').appendChild(video);
-						addSourceToVideo(video, 'nyc.webm');
+						changeVideo(video, 'nyc.webm');
 						//video.play()
 						vcheck = false;
 					}
+					console.log('did vcheck again just happen?');
 					document.getElementById('all').style.display = "none";
 
 					// for(var jointType in body.joints) {
