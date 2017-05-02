@@ -270,29 +270,33 @@
         // ..................headtracking stuff..................
         // ......................................................
 
-        
-		var video = document.createElement('video');
-		var source = document.createElement('source');
-		document.getElementById('vidbox').appendChild(video);
-		addSourceToVideo(video, 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
-
 		video.addEventListener('play', function() {
 			resizeCanvas();
 		}, 0);
 
+		var video = document.createElement('video');
+		var source = document.createElement('source');
 		
-
         socket.on('bodyFrame', function(bodyFrame){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		var index = 0;
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
-					document.getElementById('all').style.display = "none";
-					console.log(vidList);
+					
+					
 					if (vcheck) {
-						changeVideo(video, vidList[0].src);
+						console.log('vcheck is true');
+					    var vidList = document.querySelectorAll('video');
+						video = vidList[0];
+						console.log(video.src);
+						//tmpSrc = tmpVid.src;
+						
+						document.getElementById('vidbox').appendChild(video);
+						addSourceToVideo(video, 'nyc.webm');
+						//video.play()
 						vcheck = false;
 					}
+					document.getElementById('all').style.display = "none";
 
 					// for(var jointType in body.joints) {
 					// 	var joint = body.joints[jointType];
