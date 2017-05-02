@@ -270,14 +270,15 @@
         // ..................headtracking stuff..................
         // ......................................................
 
-		video.addEventListener('play', function() {
-			resizeCanvas();
-		}, 0);
 
-		var video = document.createElement('video');
+        var video = document.createElement('video');
 		var source = document.createElement('source');
 		document.getElementById('vidbox').appendChild(video);
 		changeVideo(video, 'nyc.webm');
+    	
+		video.addEventListener('play', function() {
+			resizeCanvas();
+		}, 0);
 		
         socket.on('bodyFrame', function(bodyFrame){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
