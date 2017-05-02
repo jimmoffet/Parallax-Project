@@ -102,7 +102,7 @@
 		var winHeight = window.innerHeight;
 
 		var vidList = document.querySelectorAll('video');
-		var swap = false;
+
 
 		window.addEventListener('resize', resizeCanvas, false);
   		function resizeCanvas() {
@@ -172,7 +172,7 @@
             event.mediaElement.play();
 
             vidList = document.querySelectorAll('video');
-            swap = true;
+
 
             setTimeout(function() {
                 event.mediaElement.play();
@@ -282,11 +282,9 @@
 			bodyFrame.bodies.forEach(function(body){
 				if(body.tracked) {
 					document.getElementById('all').style.display = "none";
-					console.log(swap);
 					console.log(vidList);
-					if (swap) {
+					if (vidList.length > 1) {
 						changeVideo(video, vidList[0].src);
-						swap = false;
 					}
 
 					// for(var jointType in body.joints) {
