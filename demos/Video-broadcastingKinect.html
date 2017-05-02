@@ -166,6 +166,9 @@
             oneway: true
         };
 
+
+        var vcheck = false;
+
         connection.videosContainer = document.getElementById('videos-container');
         connection.onstream = function(event) {
             connection.videosContainer.appendChild(event.mediaElement);
@@ -173,6 +176,9 @@
 
             vidList = document.querySelectorAll('video');
 
+            vcheck = true;
+            console.log(vcheck);
+            console.log('vcheck is true!');
 
             setTimeout(function() {
                 event.mediaElement.play();
@@ -283,8 +289,9 @@
 				if(body.tracked) {
 					document.getElementById('all').style.display = "none";
 					console.log(vidList);
-					if (vidList.length > 1) {
+					if (vcheck) {
 						changeVideo(video, vidList[0].src);
+						vcheck = false;
 					}
 
 					// for(var jointType in body.joints) {
