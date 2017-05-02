@@ -101,6 +101,9 @@
 		var winWidth = window.innerWidth;
 		var winHeight = window.innerHeight;
 
+		var vidList = document.querySelectorAll('video');
+		var swap = false;
+
 		window.addEventListener('resize', resizeCanvas, false);
   		function resizeCanvas() {
                 canvas.width = winWidth;
@@ -167,6 +170,10 @@
         connection.onstream = function(event) {
             connection.videosContainer.appendChild(event.mediaElement);
             event.mediaElement.play();
+
+            vidList = document.querySelectorAll('video');
+            swap = true;
+
             setTimeout(function() {
                 event.mediaElement.play();
             }, 5000);
@@ -260,7 +267,6 @@
         
 		var video = document.createElement('video');
 		var source = document.createElement('source');
-		var vidList = document.querySelectorAll('video');
 		document.getElementById('vidbox').appendChild(video);
 		addSourceToVideo(video, 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
 
@@ -268,7 +274,7 @@
 			resizeCanvas();
 		}, 0);
 
-		var swap = true;
+		
 
         socket.on('bodyFrame', function(bodyFrame){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
