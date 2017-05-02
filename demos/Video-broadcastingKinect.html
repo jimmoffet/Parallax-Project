@@ -36,7 +36,6 @@
 </head>
 
 <body>
-    <article>
     <div id="all">
         <header style="text-align: center;">
             <h1>Video Broadcasting using RTCMultiConnection</h1>
@@ -65,8 +64,9 @@
             <div id="videos-container"></div>
         </section>
     </div>
-        <div id="vidbox" style="position:absolute;top:0px;left:0px;width:200px;"><video id="bunny"></video></div>
-        <canvas id="canvas" width="512" height="424"></canvas>
+    <div id="vidbox" style="position:absolute;top:0px;left:0px;width:200px;"><video id="bunny"></video></div>
+
+    <canvas id="canvas" width="512" height="424"></canvas>
         <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
@@ -94,6 +94,7 @@
 			video.play();
 			document.getElementById('bunny').style.display = "none";
 			document.getElementById('vidbox').style.display = "none";
+			document.getElementById('all').style.display = "none";
 
 			var winWidth = window.innerWidth;
 			var winHeight = window.innerHeight;
@@ -294,7 +295,7 @@
 
 
 
-    </article>
+    
 
 
 
