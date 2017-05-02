@@ -89,7 +89,7 @@
 
 			var video = document.createElement('video');
 			document.getElementById('vidbox').appendChild(video);
-			addSourceToVideo(video, '/assets/nyc.webm', 'video/webm');
+			addSourceToVideo(video, 'nyc.webm', 'video/webm');
 			video.loop = true;
 			video.play();
 			document.getElementById('bunny').style.display = "none";
@@ -290,107 +290,13 @@
 
         </script>
 
-    	<script>
-		var socket = io.connect('https://localhost:8000');
-		var canvas = document.getElementById('canvas');
-		var ctx = canvas.getContext('2d');
-		var colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
 
-		function addSourceToVideo(element, src, type) {
-		    var source = document.createElement('source');
-		    source.src = src;
-		    source.type = type;
-		    element.appendChild(source);
-		}
 
-		var video = document.createElement('video');
-		document.getElementById('vidbox').appendChild(video);
-		addSourceToVideo(video, 'nyc.webm', 'video/webm');
-		video.loop = true;
-		video.play();
-		document.getElementById('bunny').style.display = "none";
-		document.getElementById('vidbox').style.display = "none";
 
-		var winWidth = window.innerWidth;
-		var winHeight = window.innerHeight;
-
-		window.addEventListener('resize', resizeCanvas, false);
-  		function resizeCanvas() {
-                canvas.width = winWidth;
-                canvas.height = winHeight;
-                
-        }
-        video.addEventListener('play', function() {
-                  resizeCanvas();
-                }, 0);
-
-		socket.on('bodyFrame', function(bodyFrame){
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			var index = 0;
-			bodyFrame.bodies.forEach(function(body){
-				if(body.tracked) {
-					// for(var jointType in body.joints) {
-					// 	var joint = body.joints[jointType];
-					// 	ctx.fillStyle = colors[index];
-					// 	ctx.fillRect(joint.depthX * 512, joint.depthY * 424, 10, 10);
-					// }
-					
-					
-
-					if (!video.paused && !video.ended) {
-						var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
-						ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
-						//setTimeout(loop, 1000 / 30); // drawing at 30fps
-						//document.getElementById('video').style.display = "none";
-					}
-
-					ctx.font = "30px Arial";
-					ctx.fillStyle = colors[index];
-					ctx.fillText(Zpos,10,50);
-					ctx.fillRect(body.joints[3].depthX * canvas.width, body.joints[3].depthY * canvas.height, 10, 10);
-
-					index++;
-				}
-				
-			});
-		});
-
-	</script>
-
-       <!--  <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
-            <div id="github-commits"></div>
-        </section>
-
-        <section class="experiment own-widgets">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/issues">Latest Issues</a></h2>
-            <div id="github-issues"></div>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header" id="feedback">Feedback</h2>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
-        </section>
-
-        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
-
-        <script>
-            window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
-        </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script> -->
 
     </article>
 
-    <footer>
-        <!-- <p>
-            <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-        </p> -->
-    </footer>
+
 
 </body>
 
