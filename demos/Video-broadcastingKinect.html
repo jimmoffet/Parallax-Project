@@ -276,6 +276,8 @@
 
 		var video = document.createElement('video');
 		var source = document.createElement('source');
+		document.getElementById('vidbox').appendChild(video);
+		changeVideo(video, 'nyc.webm');
 		
         socket.on('bodyFrame', function(bodyFrame){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -285,16 +287,17 @@
 					
 					
 					if (vcheck) {
-						console.log('vcheck is true again');
+						console.log('video swap has run');
 					    var vidList = document.querySelectorAll('video');
 					    console.log(vidList);
-						video = vidList[0];
-						console.log(video.src);
+						//video = vidList[0];
+						console.log(vidList[0].src);
 						//tmpSrc = tmpVid.src;
 						
-						document.getElementById('vidbox').appendChild(video);
-						changeVideo(video, 'nyc.webm');
+						changeVideo(video, vidList[0].src);
 						//video.play()
+						console.log('new source is');
+						console.log(vidList[0].src);
 						vcheck = false;
 					}
 					console.log('did vcheck again just happen?');
