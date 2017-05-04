@@ -163,6 +163,20 @@
             oneway: true
         };
 
+        connection.constraints = {
+            "mandatory": {
+            "maxWidth": 1280,
+            "maxHeight": 720
+          },
+          "optional": [{
+                  "minWidth": 640
+              },
+              {
+                  "minHeight": 480
+              }
+          ]
+        };
+
 
         var vcheck = false;
 
