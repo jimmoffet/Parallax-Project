@@ -164,20 +164,17 @@
         };
 
         connection.mediaConstraints = {
-            audio: false,
-            "mandatory": {
-            "maxWidth": 1280,
-            "maxHeight": 720,
-            "minWidth": 640,
-            "minHeight": 480
-          },
-          "optional": [{
-                  "minWidth": 640
-              },
-              {
-                  "minHeight": 480
-              }
-          ]
+            audio: true,
+            video: {
+                mandatory: {
+                    minWidth: 640,
+                    maxWidth: 1640,
+                    minHeight: 480,
+                    maxHeight: 1232
+                },
+                optional: []
+            }
+
         };
 
 
