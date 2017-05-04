@@ -167,12 +167,15 @@
             audio: true,
             video: {
                 mandatory: {
-                    minWidth: 640,
-                    maxWidth: 1640,
-                    minHeight: 480,
+                    maxWidth: 1920,
                     maxHeight: 1232
                 },
-                optional: []
+                optional: [{
+              "minWidth": 640
+          },
+          {
+              "minHeight": 480
+          }]
             }
 
         };
