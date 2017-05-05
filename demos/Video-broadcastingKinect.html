@@ -64,7 +64,7 @@
 		    </section>
 		</div>
 	
-    <div id="vidbox"><video id="bunny"></video></div>
+    <div id="vidbox"><video id="bunny" style="display: none;"></video></div>
     </article>
 	<canvas id="canvas" width="512" height="424"></canvas>
 
@@ -293,6 +293,7 @@
 		video.appendChild(source);
 		video.loop = true;
 		video.play();
+        var source2 = document.createElement('source');
 
 		video.addEventListener('play', function() {
 			resizeCanvas();
