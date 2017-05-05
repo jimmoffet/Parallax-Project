@@ -290,9 +290,9 @@
         var video = document.getElementById('bunny');
 		var source = document.createElement('source');
 		source.setAttribute('src', 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/Big_Buck_Bunny_8_seconds_bird_clip.ogv/Big_Buck_Bunny_8_seconds_bird_clip.ogv.480p.webm');
-		//video.appendChild(source);
-		//video.loop = true;
-		//video.play();
+		video.appendChild(source);
+		video.loop = true;
+		video.play();
         var source2 = document.createElement('source');
 
 		video.addEventListener('play', function() {
