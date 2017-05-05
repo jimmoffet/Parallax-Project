@@ -345,7 +345,11 @@
 						var Zpos = 1 + (1-(body.joints[3].cameraZ/2.2));
 						//ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, (body.joints[3].depthY * canvas.height)-900, 3200, 1800);
                         ctx.drawImage(bg, 0, 0, 1920, 1080);
-                        ctx.drawImage(one, (body.joints[3].depthX * canvas.width)-910, 0, 1920, 1080);
+                        ctx.drawImage(one, 1 - 910 + (body.joints[3].depthX * canvas.width), 0, 1920, 1080);
+                        ctx.drawImage(two, 1 - 910 + (body.joints[3].depthX * canvas.width), 0, 1920, 1080);
+                        ctx.drawImage(three, 1 - 910 + (body.joints[3].depthX * canvas.width), 0, 1920, 1080);
+                        ctx.drawImage(four, 1 - 910 + (body.joints[3].depthX * canvas.width), 0, 1920, 1080);
+                        ctx.drawImage(five, 1 - 910 + (body.joints[3].depthX * canvas.width), 0, 1920, 1080);
                         //ctx.drawImage(video, (body.joints[3].depthX * canvas.width)-1600, 0, 1920, 1080);
 
 					}
